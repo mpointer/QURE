@@ -11,7 +11,11 @@ from typing import Any, Dict, List, Optional
 import openai
 from anthropic import Anthropic
 
-from common.schemas import GenAIReasoningRequest, GenAIReasoningResponse, TextSpan
+from common.schemas import GenAIRequest, GenAIResponse, TextSpan
+
+# Aliases for backward compatibility
+GenAIReasoningRequest = GenAIRequest
+GenAIReasoningResponse = GenAIResponse
 
 try:
     from substrate import get_evidence_tracker, get_vector_store

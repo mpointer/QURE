@@ -36,11 +36,17 @@ from .messages import (
     MLPredictionResponse,
     PolicyRequest,
     PolicyResponse,
+    PolicyDecisionRequest,
+    PolicyDecisionResponse,
     RetrievalRequest,
     RetrievalResponse,
     RulesEvaluationRequest,
     RulesEvaluationResponse,
 )
+
+# Aliases for backward compatibility
+GenAIReasoningRequest = GenAIRequest
+GenAIReasoningResponse = GenAIResponse
 
 __all__ = [
     # Base types
@@ -72,10 +78,14 @@ __all__ = [
     "FeedbackMessage",
     "GenAIRequest",
     "GenAIResponse",
+    "GenAIReasoningRequest",
+    "GenAIReasoningResponse",
     "MLPredictionRequest",
     "MLPredictionResponse",
     "PolicyRequest",
     "PolicyResponse",
+    "PolicyDecisionRequest",
+    "PolicyDecisionResponse",
     "RetrievalRequest",
     "RetrievalResponse",
     "RulesEvaluationRequest",
