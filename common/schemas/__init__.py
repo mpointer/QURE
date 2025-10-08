@@ -36,8 +36,6 @@ from .messages import (
     MLPredictionResponse,
     PolicyRequest,
     PolicyResponse,
-    PolicyDecisionRequest,
-    PolicyDecisionResponse,
     RetrievalRequest,
     RetrievalResponse,
     RulesEvaluationRequest,
@@ -47,6 +45,8 @@ from .messages import (
 # Aliases for backward compatibility
 GenAIReasoningRequest = GenAIRequest
 GenAIReasoningResponse = GenAIResponse
+PolicyDecisionRequest = PolicyRequest
+PolicyDecisionResponse = PolicyResponse
 
 __all__ = [
     # Base types
