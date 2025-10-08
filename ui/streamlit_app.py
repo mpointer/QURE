@@ -53,7 +53,7 @@ def main():
     st.sidebar.title("Navigation")
     page = st.sidebar.radio(
         "Select Page",
-        ["Dashboard", "Case List", "Case Details", "Agent Performance", "About"]
+        ["Dashboard", "Live Processing", "Case List", "Case Details", "Agent Performance", "About"]
     )
 
     # Load data
@@ -66,6 +66,8 @@ def main():
 
     if page == "Dashboard":
         show_dashboard(gl_transactions, bank_transactions, expected_matches)
+    elif page == "Live Processing":
+        show_live_processing(gl_transactions, bank_transactions, expected_matches)
     elif page == "Case List":
         show_case_list(gl_transactions, bank_transactions, expected_matches)
     elif page == "Case Details":
@@ -98,34 +100,48 @@ def show_dashboard(gl_transactions, bank_transactions, expected_matches):
         rejected = sum(1 for m in expected_matches if m["expected_decision"] == "reject")
         st.metric("Rejected", rejected, f"{rejected/len(expected_matches)*100:.0f}%")
 
-    # Distribution chart
-    st.subheader("Decision Distribution")
+    # Interactive charts
+    col1, col2 = st.columns(2)
 
-    decision_counts = {}
-    for match in expected_matches:
-        decision = match["expected_decision"].replace("_", " ").title()
-        decision_counts[decision] = decision_counts.get(decision, 0) + 1
+    with col1:
+        st.subheader("Decision Distribution")
 
-    st.bar_chart(decision_counts)
+        import plotly.graph_objects as go
 
-    # Match score distribution
-    st.subheader("Match Score Distribution")
+        decision_counts = {}
+        for match in expected_matches:
+            decision = match["expected_decision"].replace("_", " ").title()
+            decision_counts[decision] = decision_counts.get(decision, 0) + 1
 
-    score_buckets = {"0.0-0.2": 0, "0.2-0.4": 0, "0.4-0.6": 0, "0.6-0.8": 0, "0.8-1.0": 0}
-    for match in expected_matches:
-        score = match["match_score"]
-        if score <= 0.2:
-            score_buckets["0.0-0.2"] += 1
-        elif score <= 0.4:
-            score_buckets["0.2-0.4"] += 1
-        elif score <= 0.6:
-            score_buckets["0.4-0.6"] += 1
-        elif score <= 0.8:
-            score_buckets["0.6-0.8"] += 1
-        else:
-            score_buckets["0.8-1.0"] += 1
+        fig = go.Figure(data=[go.Pie(
+            labels=list(decision_counts.keys()),
+            values=list(decision_counts.values()),
+            hole=0.4,
+            marker_colors=['#4CAF50', '#FFC107', '#FF5252', '#2196F3']
+        )])
 
-    st.bar_chart(score_buckets)
+        fig.update_layout(height=400)
+        st.plotly_chart(fig, use_container_width=True)
+
+    with col2:
+        st.subheader("Match Score Distribution")
+
+        scores = [m["match_score"] for m in expected_matches]
+
+        fig = go.Figure(data=[go.Histogram(
+            x=scores,
+            nbinsx=10,
+            marker_color='#2196F3',
+            opacity=0.7
+        )])
+
+        fig.update_layout(
+            xaxis_title="Match Score",
+            yaxis_title="Count",
+            height=400
+        )
+
+        st.plotly_chart(fig, use_container_width=True)
 
     # Recent cases
     st.subheader("Recent Cases")
@@ -412,6 +428,241 @@ def show_about():
 
     C:\\Users\\micha\\Documents\\GitHub\\QURE
     """)
+
+
+def show_live_processing(gl_transactions, bank_transactions, expected_matches):
+    """Show live case processing with animated agent workflow"""
+    import time
+    import plotly.graph_objects as go
+
+    st.header("🚀 Live Case Processing")
+    st.markdown("Process reconciliation cases in real-time and watch the multi-agent system in action")
+
+    # Case selection
+    col1, col2 = st.columns([2, 1])
+
+    with col1:
+        case_options = [f"{m['case_id']} - {m['gl_id']} ↔ {m['bank_id']}" for m in expected_matches]
+        selected_case_idx = st.selectbox("Select Case to Process", range(len(case_options)), format_func=lambda i: case_options[i])
+        selected_match = expected_matches[selected_case_idx]
+
+    with col2:
+        process_button = st.button("▶️ Process Case", type="primary", use_container_width=True)
+        batch_button = st.button("⚡ Batch Process All", use_container_width=True)
+
+    # Agent workflow visualization
+    st.subheader("Agent Execution Flow")
+
+    agents = [
+        {"name": "Retriever", "icon": "📥", "status": "pending"},
+        {"name": "Data", "icon": "🔍", "status": "pending"},
+        {"name": "Rules", "icon": "📋", "status": "pending"},
+        {"name": "Algorithm", "icon": "🧮", "status": "pending"},
+        {"name": "ML Model", "icon": "🤖", "status": "pending"},
+        {"name": "GenAI", "icon": "🧠", "status": "pending"},
+        {"name": "Assurance", "icon": "✅", "status": "pending"},
+        {"name": "Policy", "icon": "⚖️", "status": "pending"},
+        {"name": "Action", "icon": "📤", "status": "pending"},
+    ]
+
+    # Batch processing logic
+    if batch_button:
+        st.subheader("⚡ Batch Processing All Cases")
+
+        batch_progress = st.progress(0)
+        batch_status = st.empty()
+
+        batch_results = []
+        decisions_count = {"auto_resolve": 0, "hitl_review": 0, "reject": 0, "request_evidence": 0}
+
+        for idx, match in enumerate(expected_matches):
+            batch_status.text(f"Processing case {idx+1}/{len(expected_matches)}: {match['case_id']}")
+            batch_progress.progress((idx + 1) / len(expected_matches))
+
+            # Simulate quick processing
+            time.sleep(0.1)
+
+            decision = match["expected_decision"]
+            decisions_count[decision] = decisions_count.get(decision, 0) + 1
+
+            batch_results.append({
+                "case_id": match["case_id"],
+                "decision": decision,
+                "score": match["match_score"]
+            })
+
+        batch_status.text("✅ Batch processing complete!")
+
+        # Show batch results summary
+        st.success(f"**Processed {len(expected_matches)} cases successfully!**")
+
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            st.metric("Auto Resolved", decisions_count.get("auto_resolve", 0))
+        with col2:
+            st.metric("HITL Review", decisions_count.get("hitl_review", 0))
+        with col3:
+            st.metric("Rejected", decisions_count.get("reject", 0))
+        with col4:
+            st.metric("Req. Evidence", decisions_count.get("request_evidence", 0))
+
+        # Show results in table
+        st.subheader("Batch Results")
+
+        import pandas as pd
+        df = pd.DataFrame(batch_results)
+        df['decision'] = df['decision'].str.replace('_', ' ').str.title()
+        df['score'] = df['score'].apply(lambda x: f"{x:.0%}")
+
+        st.dataframe(df, use_container_width=True)
+
+        # Download button
+        csv = df.to_csv(index=False)
+        st.download_button(
+            label="📥 Download Results (CSV)",
+            data=csv,
+            file_name="qure_batch_results.csv",
+            mime="text/csv"
+        )
+
+    elif process_button:
+        # Get GL and Bank transactions for this case
+        gl = next(g for g in gl_transactions if g["id"] == selected_match["gl_id"])
+        bank = next(b for b in bank_transactions if b["id"] == selected_match["bank_id"])
+
+        # Create progress containers
+        progress_bar = st.progress(0)
+        status_text = st.empty()
+
+        # Create a container for agent cards
+        agent_cols = st.columns(len(agents))
+        agent_cards = {}
+        for i, agent in enumerate(agents):
+            with agent_cols[i]:
+                agent_cards[agent["name"]] = st.empty()
+                agent_cards[agent["name"]].markdown(f"""
+                <div style='text-align: center; padding: 10px; border: 2px solid #ddd; border-radius: 10px; background-color: #f9f9f9;'>
+                    <div style='font-size: 32px;'>{agent['icon']}</div>
+                    <div style='font-size: 12px; font-weight: bold;'>{agent['name']}</div>
+                    <div style='font-size: 10px; color: #666;'>⏸️ Pending</div>
+                </div>
+                """, unsafe_allow_html=True)
+
+        # Results container
+        results_container = st.container()
+
+        # Simulate agent execution
+        total_steps = len(agents)
+        agent_results = {}
+
+        for i, agent in enumerate(agents):
+            # Update status
+            status_text.text(f"⚡ Executing {agent['name']} Agent...")
+            progress_bar.progress((i) / total_steps)
+
+            # Update current agent card to processing
+            agent_cards[agent["name"]].markdown(f"""
+            <div style='text-align: center; padding: 10px; border: 2px solid #4CAF50; border-radius: 10px; background-color: #e8f5e9;'>
+                <div style='font-size: 32px;'>{agent['icon']}</div>
+                <div style='font-size: 12px; font-weight: bold;'>{agent['name']}</div>
+                <div style='font-size: 10px; color: #4CAF50;'>⚡ Processing...</div>
+            </div>
+            """, unsafe_allow_html=True)
+
+            # Simulate processing time
+            time.sleep(0.3)
+
+            # Generate mock results based on agent
+            if agent["name"] == "Retriever":
+                result = {"status": "success", "documents": 2}
+            elif agent["name"] == "Data":
+                result = {"status": "success", "entities": 8}
+            elif agent["name"] == "Rules":
+                result = {"status": "success", "score": 0.75, "passed": 9, "failed": 0}
+            elif agent["name"] == "Algorithm":
+                result = {"status": "success", "score": 0.82}
+            elif agent["name"] == "ML Model":
+                result = {"status": "success", "confidence": 0.91}
+            elif agent["name"] == "GenAI":
+                result = {"status": "success", "confidence": 0.88}
+            elif agent["name"] == "Assurance":
+                result = {"status": "success", "assurance": 0.85, "hallucination": False}
+            elif agent["name"] == "Policy":
+                result = {"status": "success", "decision": selected_match["expected_decision"]}
+            elif agent["name"] == "Action":
+                result = {"status": "success", "action": "reconciled"}
+
+            agent_results[agent["name"]] = result
+
+            # Update agent card to completed
+            score_display = ""
+            if "score" in result:
+                score_display = f"<div style='font-size: 10px;'>Score: {result['score']:.0%}</div>"
+            elif "confidence" in result:
+                score_display = f"<div style='font-size: 10px;'>Confidence: {result['confidence']:.0%}</div>"
+
+            agent_cards[agent["name"]].markdown(f"""
+            <div style='text-align: center; padding: 10px; border: 2px solid #4CAF50; border-radius: 10px; background-color: #c8e6c9;'>
+                <div style='font-size: 32px;'>{agent['icon']}</div>
+                <div style='font-size: 12px; font-weight: bold;'>{agent['name']}</div>
+                <div style='font-size: 10px; color: #2E7D32;'>✓ Complete</div>
+                {score_display}
+            </div>
+            """, unsafe_allow_html=True)
+
+        # Complete
+        progress_bar.progress(1.0)
+        status_text.text("✅ Processing Complete!")
+
+        # Show detailed results
+        with results_container:
+            st.success(f"**Case {selected_match['case_id']} processed successfully!**")
+
+            col1, col2, col3 = st.columns(3)
+
+            with col1:
+                st.metric("GL Amount", f"${gl['amount']:,.2f}")
+                st.metric("Bank Amount", f"${bank['amount']:,.2f}")
+
+            with col2:
+                st.metric("Match Score", f"{selected_match['match_score']:.0%}")
+                st.metric("Assurance", f"{agent_results['Assurance']['assurance']:.0%}")
+
+            with col3:
+                decision = selected_match['expected_decision'].replace('_', ' ').title()
+                st.metric("Decision", decision)
+                st.metric("ML Confidence", f"{agent_results['ML Model']['confidence']:.0%}")
+
+            # Show agent scores in a chart
+            st.subheader("Agent Scores Breakdown")
+
+            fig = go.Figure()
+
+            agent_names = ["Rules", "Algorithm", "ML Model", "GenAI", "Assurance"]
+            scores = [
+                agent_results["Rules"]["score"],
+                agent_results["Algorithm"]["score"],
+                agent_results["ML Model"]["confidence"],
+                agent_results["GenAI"]["confidence"],
+                agent_results["Assurance"]["assurance"]
+            ]
+
+            fig.add_trace(go.Bar(
+                x=agent_names,
+                y=scores,
+                marker_color=['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8'],
+                text=[f"{s:.0%}" for s in scores],
+                textposition='auto',
+            ))
+
+            fig.update_layout(
+                title="Agent Confidence Scores",
+                yaxis_title="Score",
+                yaxis=dict(range=[0, 1]),
+                height=400
+            )
+
+            st.plotly_chart(fig, use_container_width=True)
 
 
 if __name__ == "__main__":
