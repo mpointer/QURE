@@ -1,0 +1,149 @@
+version: '3.8'
+
+services:
+  # Redis - Message queue and cache
+  redis:
+    image: redis:7-alpine
+    container_name: qure-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # Neo4j - Graph database
+  neo4j:
+    image: neo4j:5.14-community
+    container_name: qure-neo4j
+    ports:
+      - "7474:7474"  # HTTP
+      - "7687:7687"  # Bolt
+    environment:
+      - NEO4J_AUTH=neo4j/password
+      - NEO4J_PLUGINS=["apoc"]
+      - NEO4J_dbms_security_procedures_unrestricted=apoc.*
+    volumes:
+      - neo4j-data:/data
+      - neo4j-logs:/logs
+    healthcheck:
+      test: ["CMD", "cypher-shell", "-u", "neo4j", "-p", "password", "RETURN 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ChromaDB - Vector store
+  chroma:
+    image: chromadb/chroma:0.4.15
+    container_name: qure-chroma
+    ports:
+      - "8000:8000"
+    volumes:
+      - chroma-data:/chroma/chroma
+    environment:
+      - IS_PERSISTENT=TRUE
+      - ANONYMIZED_TELEMETRY=FALSE
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Postgres - Feature store and transactional data
+  postgres:
+    image: postgres:16-alpine
+    container_name: qure-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=qure
+      - POSTGRES_PASSWORD=qure_dev_password
+      - POSTGRES_DB=qure
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U qure"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Temporal Server - Workflow orchestration
+  temporal:
+    image: temporalio/auto-setup:1.22.0
+    container_name: qure-temporal
+    ports:
+      - "7233:7233"  # gRPC
+      - "8233:8233"  # Web UI
+    environment:
+      - DB=postgresql
+      - DB_PORT=5432
+      - POSTGRES_USER=qure
+      - POSTGRES_PWD=qure_dev_password
+      - POSTGRES_SEEDS=postgres
+      - DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/development-sql.yaml
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # Temporal Web UI
+  temporal-ui:
+    image: temporalio/ui:2.21.0
+    container_name: qure-temporal-ui
+    ports:
+      - "8080:8080"
+    environment:
+      - TEMPORAL_ADDRESS=temporal:7233
+      - TEMPORAL_CORS_ORIGINS=http://localhost:3000
+    depends_on:
+      - temporal
+
+  # MLflow - Model registry and experiment tracking
+  mlflow:
+    image: python:3.11-slim
+    container_name: qure-mlflow
+    ports:
+      - "5000:5000"
+    volumes:
+      - mlflow-data:/mlflow
+    command: >
+      sh -c "pip install mlflow psycopg2-binary &&
+             mlflow server
+             --backend-store-uri postgresql://qure:qure_dev_password@postgres:5432/qure
+             --default-artifact-root /mlflow
+             --host 0.0.0.0"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # Grafana - Monitoring dashboard
+  grafana:
+    image: grafana/grafana:10.2.0
+    container_name: qure-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_INSTALL_PLUGINS=redis-datasource
+    volumes:
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - redis
+      - postgres
+
+volumes:
+  redis-data:
+  neo4j-data:
+  neo4j-logs:
+  chroma-data:
+  postgres-data:
+  mlflow-data:
+  grafana-data:
+
+networks:
+  default:
+    name: qure-network
