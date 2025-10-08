@@ -5,21 +5,11 @@ Decision fusion, utility scoring, and threshold-based action routing.
 """
 
 import logging
-from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from common.schemas import PolicyDecisionRequest, PolicyDecisionResponse
+from common.schemas import DecisionType, PolicyDecisionRequest, PolicyDecisionResponse
 
 logger = logging.getLogger(__name__)
-
-
-class DecisionType(str, Enum):
-    """Decision types"""
-    AUTO_APPROVE = "auto_approve"
-    AUTO_REJECT = "auto_reject"
-    HUMAN_REVIEW = "human_review"
-    REQUEST_EVIDENCE = "request_evidence"
-    ESCALATE = "escalate"
 
 
 class PolicyAgent:
@@ -60,26 +50,28 @@ class PolicyAgent:
             PolicyDecisionResponse with decision and routing
         """
         case_id = request.case_id
-        agent_outputs = request.agent_outputs
-        business_context = request.business_context
+        scores = request.scores
+        uncertainty = request.uncertainty
+        constraints = request.constraints
 
         try:
-            # 1. Signal fusion: combine agent outputs into unified score
-            fusion_score, signal_breakdown = self._fuse_signals(agent_outputs)
+            # 1. Signal fusion: combine agent scores into unified score
+            fusion_score, signal_breakdown = self._fuse_signals(scores)
 
             # 2. Utility computation: map score to business value
             utility_score = self._compute_utility(
                 fusion_score=fusion_score,
-                agent_outputs=agent_outputs,
-                business_context=business_context,
+                scores=scores,
+                constraints=constraints,
             )
 
             # 3. Decision logic: apply thresholds and routing rules
             decision, confidence, reasoning = self._apply_decision_logic(
                 fusion_score=fusion_score,
                 utility_score=utility_score,
-                agent_outputs=agent_outputs,
-                business_context=business_context,
+                uncertainty=uncertainty,
+                scores=scores,
+                constraints=constraints,
             )
 
             # 4. Build explanation
@@ -100,11 +92,9 @@ class PolicyAgent:
                 case_id=case_id,
                 from_agent=request.to_agent or request.from_agent,
                 to_agent=None,
-                decision=decision.value,
+                decision=decision,
                 confidence=confidence,
-                fusion_score=fusion_score,
                 utility_score=utility_score,
-                reasoning=reasoning,
                 explanation=explanation,
             )
 
@@ -114,23 +104,21 @@ class PolicyAgent:
                 case_id=case_id,
                 from_agent=request.to_agent or request.from_agent,
                 to_agent=None,
-                decision=DecisionType.HUMAN_REVIEW.value,
+                decision=DecisionType.HITL_REVIEW,
                 confidence=0.0,
-                fusion_score=0.0,
                 utility_score=0.0,
-                reasoning=["Error in policy decision"],
                 explanation=f"Policy error: {str(e)}",
             )
 
     def _fuse_signals(
         self,
-        agent_outputs: List[Dict[str, Any]],
+        scores: Dict[str, float],
     ) -> tuple[float, Dict[str, float]]:
         """
         Fuse signals from multiple reasoning agents
 
         Args:
-            agent_outputs: List of agent output dicts
+            scores: Dict of agent_name -> score
 
         Returns:
             Tuple of (fusion_score, signal_breakdown)
@@ -138,8 +126,8 @@ class PolicyAgent:
         # Signal weights (configurable)
         weights = self.config.get("signal_weights", {
             "rules": 0.25,
-            "algorithms": 0.20,
-            "ml_model": 0.20,
+            "algorithm": 0.20,
+            "ml": 0.20,
             "genai": 0.20,
             "assurance": 0.15,
         })
@@ -148,38 +136,9 @@ class PolicyAgent:
         weighted_sum = 0.0
         total_weight = 0.0
 
-        for output in agent_outputs:
-            agent_type = output.get("from_agent", "").lower()
-
-            # Extract score based on agent type
-            if "rules" in agent_type:
-                score = output.get("rule_score", 0.0)
-                weight = weights.get("rules", 0.0)
-                signal_breakdown["rules"] = score
-
-            elif "algorithm" in agent_type:
-                score = output.get("score", 0.0)
-                weight = weights.get("algorithms", 0.0)
-                signal_breakdown["algorithms"] = score
-
-            elif "ml_model" in agent_type or "ml" in agent_type:
-                score = output.get("confidence", 0.0)
-                weight = weights.get("ml_model", 0.0)
-                signal_breakdown["ml_model"] = score
-
-            elif "genai" in agent_type:
-                score = output.get("confidence", 0.0)
-                weight = weights.get("genai", 0.0)
-                signal_breakdown["genai"] = score
-
-            elif "assurance" in agent_type:
-                score = output.get("assurance_score", 0.0)
-                weight = weights.get("assurance", 0.0)
-                signal_breakdown["assurance"] = score
-
-            else:
-                continue
-
+        for agent_name, score in scores.items():
+            weight = weights.get(agent_name, 0.0)
+            signal_breakdown[agent_name] = score
             weighted_sum += score * weight
             total_weight += weight
 
@@ -191,24 +150,24 @@ class PolicyAgent:
     def _compute_utility(
         self,
         fusion_score: float,
-        agent_outputs: List[Dict[str, Any]],
-        business_context: Dict[str, Any],
+        scores: Dict[str, float],
+        constraints: Dict[str, Any],
     ) -> float:
         """
         Compute utility score based on business objectives
 
         Args:
             fusion_score: Fused signal score
-            agent_outputs: Agent outputs
-            business_context: Business-specific context
+            scores: Agent scores
+            constraints: Business constraints and context
 
         Returns:
             Utility score
         """
         # Business value factors
-        transaction_amount = business_context.get("transaction_amount", 0.0)
-        risk_level = business_context.get("risk_level", "medium")
-        sla_urgency = business_context.get("sla_urgency", 0.5)
+        transaction_amount = constraints.get("transaction_amount", 0.0)
+        risk_level = constraints.get("risk_level", "medium")
+        sla_urgency = constraints.get("sla_urgency", 0.5)
 
         # Compute base utility from fusion score
         base_utility = fusion_score
@@ -239,8 +198,9 @@ class PolicyAgent:
         self,
         fusion_score: float,
         utility_score: float,
-        agent_outputs: List[Dict[str, Any]],
-        business_context: Dict[str, Any],
+        uncertainty: float,
+        scores: Dict[str, float],
+        constraints: Dict[str, Any],
     ) -> tuple[DecisionType, float, List[str]]:
         """
         Apply decision logic with thresholds
@@ -248,8 +208,9 @@ class PolicyAgent:
         Args:
             fusion_score: Fused signal score
             utility_score: Utility score
-            agent_outputs: Agent outputs
-            business_context: Business context
+            uncertainty: Uncertainty score
+            scores: Agent scores
+            constraints: Business constraints
 
         Returns:
             Tuple of (decision, confidence, reasoning)
@@ -258,60 +219,38 @@ class PolicyAgent:
 
         # Get thresholds from config
         thresholds = self.config.get("thresholds", {
-            "auto_approve": 0.85,
-            "auto_reject": 0.30,
-            "human_review": 0.50,
+            "auto_resolve": 0.85,
+            "reject": 0.30,
+            "hitl_review": 0.50,
         })
 
-        # Check for mandatory rule failures (hard stop)
-        for output in agent_outputs:
-            if "rules" in output.get("from_agent", "").lower():
-                failed_rules = output.get("failed_rules", [])
-                if failed_rules:
-                    reasoning.append(f"Mandatory rule failures: {', '.join(failed_rules[:3])}")
-                    return DecisionType.AUTO_REJECT, 1.0, reasoning
-
-        # Check for missing evidence
-        for output in agent_outputs:
-            if "rules" in output.get("from_agent", "").lower():
-                needs_evidence = output.get("needs_evidence", [])
-                if needs_evidence:
-                    reasoning.append(f"Missing evidence for {len(needs_evidence)} rules")
-                    return DecisionType.REQUEST_EVIDENCE, 0.9, reasoning
-
-        # Check assurance score
-        assurance_score = 0.0
-        for output in agent_outputs:
-            if "assurance" in output.get("from_agent", "").lower():
-                assurance_score = output.get("assurance_score", 0.0)
-                if output.get("hallucination_detected", False):
-                    reasoning.append("Potential hallucination detected by Assurance Agent")
-                    return DecisionType.HUMAN_REVIEW, 0.6, reasoning
+        # Get assurance score
+        assurance_score = scores.get("assurance", 0.0)
 
         # Decision based on utility score and assurance
-        if utility_score >= thresholds["auto_approve"] and assurance_score >= 0.7:
+        if utility_score >= thresholds["auto_resolve"] and assurance_score >= 0.7:
             reasoning.append(f"High utility ({utility_score:.2%}) and assurance ({assurance_score:.2%})")
-            return DecisionType.AUTO_APPROVE, utility_score, reasoning
+            return DecisionType.AUTO_RESOLVE, utility_score, reasoning
 
-        elif utility_score < thresholds["auto_reject"]:
+        elif utility_score < thresholds["reject"]:
             reasoning.append(f"Low utility score ({utility_score:.2%})")
-            return DecisionType.AUTO_REJECT, 1.0 - utility_score, reasoning
+            return DecisionType.REJECT, 1.0 - utility_score, reasoning
 
-        elif utility_score >= thresholds["human_review"]:
+        elif utility_score >= thresholds["hitl_review"]:
             # Medium confidence - check business context
-            risk_level = business_context.get("risk_level", "medium")
-            transaction_amount = business_context.get("transaction_amount", 0.0)
+            risk_level = constraints.get("risk_level", "medium")
+            transaction_amount = constraints.get("transaction_amount", 0.0)
 
             if risk_level == "high" or transaction_amount > 50000:
                 reasoning.append(f"High-risk or high-value case requires review")
-                return DecisionType.ESCALATE, 0.8, reasoning
+                return DecisionType.HITL_REVIEW, 0.8, reasoning
             else:
                 reasoning.append(f"Medium confidence ({utility_score:.2%})")
-                return DecisionType.HUMAN_REVIEW, utility_score, reasoning
+                return DecisionType.HITL_REVIEW, utility_score, reasoning
 
         else:
-            reasoning.append(f"Score ({utility_score:.2%}) below human review threshold")
-            return DecisionType.AUTO_REJECT, 0.7, reasoning
+            reasoning.append(f"Score ({utility_score:.2%}) below review threshold")
+            return DecisionType.REJECT, 0.7, reasoning
 
     def _build_explanation(
         self,
@@ -364,15 +303,15 @@ class PolicyAgent:
         return {
             "signal_weights": {
                 "rules": 0.25,
-                "algorithms": 0.20,
-                "ml_model": 0.20,
+                "algorithm": 0.20,
+                "ml": 0.20,
                 "genai": 0.20,
                 "assurance": 0.15,
             },
             "thresholds": {
-                "auto_approve": 0.85,
-                "auto_reject": 0.30,
-                "human_review": 0.50,
+                "auto_resolve": 0.85,
+                "reject": 0.30,
+                "hitl_review": 0.50,
             },
             "risk_adjustments": {
                 "high": 0.8,

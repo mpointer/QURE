@@ -124,8 +124,8 @@ def run_finance_reconciliation_demo():
 
     rules_request = RulesEvaluationRequest(
         case_id=case_id,
-        from_agent="orchestrator",
-        to_agent="rules_engine",
+        from_agent="orchestration",
+        to_agent="rules",
         rule_set="finance_reconciliation",
         case_data={
             "gl_amount": gl_transaction["amount"],
@@ -158,8 +158,8 @@ def run_finance_reconciliation_demo():
     # First compute component scores
     date_proximity_request = AlgorithmRequest(
         case_id=case_id,
-        from_agent="orchestrator",
-        to_agent="algorithm_agent",
+        from_agent="orchestration",
+        to_agent="algorithm",
         algorithm_type="date_proximity",
         inputs={
             "date1": gl_transaction["date"],
@@ -173,8 +173,8 @@ def run_finance_reconciliation_demo():
 
     amount_sim_request = AlgorithmRequest(
         case_id=case_id,
-        from_agent="orchestrator",
-        to_agent="algorithm_agent",
+        from_agent="orchestration",
+        to_agent="algorithm",
         algorithm_type="amount_similarity",
         inputs={
             "amount1": gl_transaction["amount"],
@@ -188,8 +188,8 @@ def run_finance_reconciliation_demo():
 
     fuzzy_match_request = AlgorithmRequest(
         case_id=case_id,
-        from_agent="orchestrator",
-        to_agent="algorithm_agent",
+        from_agent="orchestration",
+        to_agent="algorithm",
         algorithm_type="fuzzy_match",
         inputs={
             "string1": gl_transaction["payer"],
@@ -204,8 +204,8 @@ def run_finance_reconciliation_demo():
     # Now compute overall reconciliation score
     recon_request = AlgorithmRequest(
         case_id=case_id,
-        from_agent="orchestrator",
-        to_agent="algorithm_agent",
+        from_agent="orchestration",
+        to_agent="algorithm",
         algorithm_type="reconciliation_score",
         inputs={
             "date_proximity_score": date_prox_response.score,
@@ -250,10 +250,10 @@ Recommendation: APPROVE reconciliation with high confidence.
 
     # Simulate agent outputs for assurance
     agent_outputs = [
-        {"from_agent": "rules_engine", "confidence": rules_response.rule_score, "rule_score": rules_response.rule_score},
-        {"from_agent": "algorithm_agent", "confidence": recon_response.score, "score": recon_response.score},
-        {"from_agent": "ml_model_agent", "confidence": ml_confidence},
-        {"from_agent": "genai_reasoner", "confidence": genai_confidence, "citations": [{"source_id": "GL_20240115_001"}] * citation_count},
+        {"from_agent": "rules", "confidence": rules_response.rule_score, "rule_score": rules_response.rule_score},
+        {"from_agent": "algorithm", "confidence": recon_response.score, "score": recon_response.score},
+        {"from_agent": "ml", "confidence": ml_confidence},
+        {"from_agent": "genai", "confidence": genai_confidence, "citations": [{"source_id": "GL_20240115_001"}] * citation_count},
     ]
 
     # Compute uncertainty
@@ -286,12 +286,17 @@ Recommendation: APPROVE reconciliation with high confidence.
 
     policy_request = PolicyDecisionRequest(
         case_id=case_id,
-        from_agent="orchestrator",
-        to_agent="policy_agent",
-        agent_outputs=agent_outputs + [
-            {"from_agent": "assurance_agent", "assurance_score": assurance_score, "hallucination_detected": False}
-        ],
-        business_context={
+        from_agent="orchestration",
+        to_agent="policy",
+        scores={
+            "rules": rules_response.rule_score,
+            "algorithm": recon_response.score,
+            "ml": ml_confidence,
+            "genai": genai_confidence,
+            "assurance": assurance_score,
+        },
+        uncertainty=uncertainty,
+        constraints={
             "transaction_amount": gl_transaction["amount"],
             "risk_level": "low",
             "sla_urgency": 0.3,
@@ -302,20 +307,18 @@ Recommendation: APPROVE reconciliation with high confidence.
 
     logger.info(f"\n  Decision: {policy_response.decision.upper()}")
     logger.info(f"  Confidence: {policy_response.confidence:.2%}")
-    logger.info(f"  Fusion Score: {policy_response.fusion_score:.2%}")
     logger.info(f"  Utility Score: {policy_response.utility_score:.2%}")
-    logger.info(f"\n  Reasoning:")
-    for reason in policy_response.reasoning:
-        logger.info(f"    • {reason}")
+    logger.info(f"\n  Explanation:")
+    logger.info(f"    {policy_response.explanation}")
 
     # Step 9: Action Agent - Execute decision
-    if policy_response.decision == "auto_approve":
+    if policy_response.decision == "auto_resolve":
         logger.info("\n[ACTION] Executing approval...")
 
         action_request = ActionRequest(
             case_id=case_id,
-            from_agent="orchestrator",
-            to_agent="action_agent",
+            from_agent="orchestration",
+            to_agent="action",
             action_type="write_back",
             action_params={
                 "target_system": "database",
@@ -336,8 +339,8 @@ Recommendation: APPROVE reconciliation with high confidence.
         # Generate notification
         notification_request = ActionRequest(
             case_id=case_id,
-            from_agent="orchestrator",
-            to_agent="action_agent",
+            from_agent="orchestration",
+            to_agent="action",
             action_type="send_notification",
             action_params={
                 "notification_type": "email",
@@ -351,13 +354,13 @@ Recommendation: APPROVE reconciliation with high confidence.
 
         logger.info(f"\n✅ Reconciliation complete!")
 
-    elif policy_response.decision == "human_review":
+    elif policy_response.decision == "hitl_review":
         logger.info("\n[ACTION] Escalating for human review...")
 
         action_request = ActionRequest(
             case_id=case_id,
-            from_agent="orchestrator",
-            to_agent="action_agent",
+            from_agent="orchestration",
+            to_agent="action",
             action_type="escalate",
             action_params={
                 "reason": "Medium confidence - requires human validation",
