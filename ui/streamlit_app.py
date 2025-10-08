@@ -14,29 +14,101 @@ import streamlit as st
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 
-def load_test_data():
-    """Load synthetic test data"""
+def get_vertical_labels(vertical):
+    """Get vertical-specific field labels and terminology"""
+    labels = {
+        "Finance": {
+            "data1_label": "GL Transaction",
+            "data2_label": "Bank Transaction",
+            "case_label": "Reconciliation",
+            "id1_field": "id",
+            "id2_field": "id",
+            "amount_field": "amount",
+            "date_field": "date",
+            "entity_field": "payer",
+            "memo_field": "memo",
+        },
+        "Healthcare": {
+            "data1_label": "Prior Auth Request",
+            "data2_label": "Clinical Documentation",
+            "case_label": "Prior Authorization",
+            "id1_field": "id",
+            "id2_field": "id",
+            "amount_field": "estimated_cost",
+            "date_field": "request_date",
+            "entity_field": "patient_name",
+            "memo_field": "procedure_name",
+        },
+    }
+    return labels.get(vertical, labels["Finance"])
+
+
+def load_test_data(vertical="Finance"):
+    """Load synthetic test data for the selected vertical"""
+    # Map vertical to directory name and file structure
+    vertical_config = {
+        "Finance": {
+            "dir": "finance",
+            "files": ["gl_transactions.json", "bank_transactions.json", "expected_matches.json"],
+            "keys": ["gl", "bank", "matches"]
+        },
+        "Healthcare": {
+            "dir": "healthcare",
+            "files": ["prior_auth_requests.json", "clinical_documentation.json", "expected_matches.json"],
+            "keys": ["requests", "clinical", "matches"]
+        },
+        "Insurance": {
+            "dir": "finance",  # Fallback to finance for now
+            "files": ["gl_transactions.json", "bank_transactions.json", "expected_matches.json"],
+            "keys": ["gl", "bank", "matches"]
+        },
+        "Retail": {
+            "dir": "finance",  # Fallback to finance for now
+            "files": ["gl_transactions.json", "bank_transactions.json", "expected_matches.json"],
+            "keys": ["gl", "bank", "matches"]
+        },
+        "Manufacturing": {
+            "dir": "finance",  # Fallback to finance for now
+            "files": ["gl_transactions.json", "bank_transactions.json", "expected_matches.json"],
+            "keys": ["gl", "bank", "matches"]
+        },
+    }
+
+    config = vertical_config.get(vertical, vertical_config["Finance"])
+
     # Get absolute path to data directory
-    data_dir = Path(__file__).resolve().parent.parent / "data" / "synthetic" / "finance"
+    data_dir = Path(__file__).resolve().parent.parent / "data" / "synthetic" / config["dir"]
 
     # Debug: show the path
     if not data_dir.exists():
         st.error(f"Data directory not found: {data_dir}")
-        st.info(f"__file__ = {__file__}")
-        st.info(f"parent = {Path(__file__).parent}")
-        st.info(f"parent.parent = {Path(__file__).parent.parent}")
-        raise FileNotFoundError(f"Data directory not found: {data_dir}")
+        st.info(f"Falling back to Finance data")
+        data_dir = Path(__file__).resolve().parent.parent / "data" / "synthetic" / "finance"
 
-    with open(data_dir / "gl_transactions.json") as f:
-        gl_transactions = json.load(f)
+    # Load the three data files
+    try:
+        with open(data_dir / config["files"][0]) as f:
+            data1 = json.load(f)
 
-    with open(data_dir / "bank_transactions.json") as f:
-        bank_transactions = json.load(f)
+        with open(data_dir / config["files"][1]) as f:
+            data2 = json.load(f)
 
-    with open(data_dir / "expected_matches.json") as f:
-        expected_matches = json.load(f)
+        with open(data_dir / config["files"][2]) as f:
+            matches = json.load(f)
 
-    return gl_transactions, bank_transactions, expected_matches
+        return data1, data2, matches
+    except Exception as e:
+        st.error(f"Error loading {vertical} data: {e}")
+        st.info("Falling back to Finance data")
+        # Fallback to finance
+        data_dir = Path(__file__).resolve().parent.parent / "data" / "synthetic" / "finance"
+        with open(data_dir / "gl_transactions.json") as f:
+            data1 = json.load(f)
+        with open(data_dir / "bank_transactions.json") as f:
+            data2 = json.load(f)
+        with open(data_dir / "expected_matches.json") as f:
+            matches = json.load(f)
+        return data1, data2, matches
 
 
 def main():
@@ -95,13 +167,18 @@ def main():
         ["Dashboard", "Use Cases", "Live Processing", "Case List", "Case Details", "Audit Trail", "Admin Panel", "Agent Performance", "About"]
     )
 
-    # Load data
+    # Load data based on selected vertical
     try:
-        gl_transactions, bank_transactions, expected_matches = load_test_data()
+        data1, data2, expected_matches = load_test_data(vertical)
     except Exception as e:
         st.error(f"Error loading test data: {e}")
-        st.info("Please run: python data/synthetic/generate_finance_data.py")
+        st.info(f"Please run: python data/synthetic/generate_{vertical.lower()}_data.py")
         return
+
+    # For backward compatibility, use generic names
+    # These will be interpreted differently based on vertical
+    gl_transactions = data1  # Finance: GL, Healthcare: Prior Auth Requests
+    bank_transactions = data2  # Finance: Bank, Healthcare: Clinical Documentation
 
     if page == "Dashboard":
         show_dashboard(gl_transactions, bank_transactions, expected_matches)
@@ -137,9 +214,8 @@ def show_dashboard(gl_transactions, bank_transactions, expected_matches):
 
     st.header(f"{vertical_icons.get(vertical, '💰')} {vertical} Dashboard")
 
-    # Show vertical-specific banner
-    if vertical != "Finance":
-        st.info(f"ℹ️ Currently showing demo data for Finance vertical. {vertical} vertical data coming soon!")
+    # Get vertical-specific labels
+    labels = get_vertical_labels(vertical)
 
     # Summary metrics
     col1, col2, col3, col4 = st.columns(4)
@@ -210,14 +286,20 @@ def show_dashboard(gl_transactions, bank_transactions, expected_matches):
             col1, col2 = st.columns(2)
 
             with col1:
-                gl = next(g for g in gl_transactions if g["id"] == match["gl_id"])
-                st.markdown("**GL Transaction**")
-                st.json(gl)
+                # Use pa_id for Healthcare, gl_id for Finance
+                id_field = "pa_id" if vertical == "Healthcare" else "gl_id"
+                data1_id = match.get(id_field, match.get("gl_id"))
+                data1 = next((g for g in gl_transactions if g.get("id") == data1_id), {})
+                st.markdown(f"**{labels['data1_label']}**")
+                st.json(data1)
 
             with col2:
-                bank = next(b for b in bank_transactions if b["id"] == match["bank_id"])
-                st.markdown("**Bank Transaction**")
-                st.json(bank)
+                # Use clinical_id for Healthcare, bank_id for Finance
+                id_field2 = "clinical_id" if vertical == "Healthcare" else "bank_id"
+                data2_id = match.get(id_field2, match.get("bank_id"))
+                data2 = next((b for b in bank_transactions if b.get("id") == data2_id), {})
+                st.markdown(f"**{labels['data2_label']}**")
+                st.json(data2)
 
             st.markdown(f"**Match Score:** {match['match_score']:.2%}")
             st.markdown(f"**Notes:** {match['notes']}")
@@ -465,7 +547,10 @@ def show_use_cases():
 
 def show_case_list(gl_transactions, bank_transactions, expected_matches):
     """Show list of all cases"""
-    st.header("Case List")
+    vertical = st.session_state.get('vertical', 'Finance')
+    labels = get_vertical_labels(vertical)
+
+    st.header(f"Case List - {labels['case_label']}")
 
     # Filters
     col1, col2, col3 = st.columns(3)
@@ -510,27 +595,41 @@ def show_case_list(gl_transactions, bank_transactions, expected_matches):
     st.markdown(f"**Showing {len(filtered_matches)} cases**")
 
     for match in filtered_matches:
-        gl = next(g for g in gl_transactions if g["id"] == match["gl_id"])
-        bank = next(b for b in bank_transactions if b["id"] == match["bank_id"])
+        # Get data based on vertical
+        if vertical == "Healthcare":
+            data1_id = match.get("pa_id")
+            data2_id = match.get("clinical_id")
+        else:
+            data1_id = match.get("gl_id")
+            data2_id = match.get("bank_id")
+
+        gl = next((g for g in gl_transactions if g.get("id") == data1_id), {})
+        bank = next((b for b in bank_transactions if b.get("id") == data2_id), {})
 
         with st.expander(f"{match['case_id']} | Score: {match['match_score']:.2%} | Decision: {match['expected_decision'].replace('_', ' ').title()}"):
             col1, col2, col3 = st.columns(3)
 
             with col1:
-                st.markdown("**GL Transaction**")
-                st.markdown(f"**ID:** {gl['id']}")
-                st.markdown(f"**Date:** {gl['date']}")
-                st.markdown(f"**Amount:** ${gl['amount']:,.2f}")
-                st.markdown(f"**Payer:** {gl['payer']}")
-                st.markdown(f"**Memo:** {gl['memo']}")
+                st.markdown(f"**{labels['data1_label']}**")
+                st.markdown(f"**ID:** {gl.get('id', 'N/A')}")
+                st.markdown(f"**Date:** {gl.get(labels['date_field'], 'N/A')}")
+                st.markdown(f"**Amount:** ${gl.get(labels['amount_field'], 0):,.2f}")
+                st.markdown(f"**Entity:** {gl.get(labels['entity_field'], 'N/A')}")
+                st.markdown(f"**Detail:** {gl.get(labels['memo_field'], 'N/A')}")
 
             with col2:
-                st.markdown("**Bank Transaction**")
-                st.markdown(f"**ID:** {bank['id']}")
-                st.markdown(f"**Date:** {bank['date']}")
-                st.markdown(f"**Amount:** ${bank['amount']:,.2f}")
-                st.markdown(f"**Payer:** {bank['payer']}")
-                st.markdown(f"**Memo:** {bank['memo']}")
+                st.markdown(f"**{labels['data2_label']}**")
+                st.markdown(f"**ID:** {bank.get('id', 'N/A')}")
+                if vertical == "Healthcare":
+                    st.markdown(f"**Date:** {bank.get('documentation_date', 'N/A')}")
+                    st.markdown(f"**Necessity Score:** {bank.get('medical_necessity_score', 0):.2%}")
+                    st.markdown(f"**Prior Treatments:** {len(bank.get('prior_treatments', []))}")
+                    st.markdown(f"**Notes:** {bank.get('clinical_notes', 'N/A')[:100]}...")
+                else:
+                    st.markdown(f"**Date:** {bank.get('date', 'N/A')}")
+                    st.markdown(f"**Amount:** ${bank.get('amount', 0):,.2f}")
+                    st.markdown(f"**Payer:** {bank.get('payer', 'N/A')}")
+                    st.markdown(f"**Memo:** {bank.get('memo', 'N/A')}")
 
             with col3:
                 st.markdown("**Match Analysis**")
@@ -544,15 +643,27 @@ def show_case_list(gl_transactions, bank_transactions, expected_matches):
 
 def show_case_details(gl_transactions, bank_transactions, expected_matches):
     """Show detailed view of a single case"""
-    st.header("Case Details")
+    vertical = st.session_state.get('vertical', 'Finance')
+    labels = get_vertical_labels(vertical)
+
+    st.header(f"Case Details - {labels['case_label']}")
 
     # Case selector
     case_ids = [m["case_id"] for m in expected_matches]
     selected_case_id = st.selectbox("Select Case", case_ids)
 
     match = next(m for m in expected_matches if m["case_id"] == selected_case_id)
-    gl = next(g for g in gl_transactions if g["id"] == match["gl_id"])
-    bank = next(b for b in bank_transactions if b["id"] == match["bank_id"])
+
+    # Get data based on vertical
+    if vertical == "Healthcare":
+        data1_id = match.get("pa_id")
+        data2_id = match.get("clinical_id")
+    else:
+        data1_id = match.get("gl_id")
+        data2_id = match.get("bank_id")
+
+    gl = next((g for g in gl_transactions if g.get("id") == data1_id), {})
+    bank = next((b for b in bank_transactions if b.get("id") == data2_id), {})
 
     # Case header
     st.subheader(f"Case: {match['case_id']}")
@@ -563,23 +674,34 @@ def show_case_details(gl_transactions, bank_transactions, expected_matches):
     with col2:
         st.metric("Expected Decision", match['expected_decision'].replace('_', ' ').title())
     with col3:
-        date_diff = abs((
-            __import__('datetime').datetime.strptime(bank['date'], '%Y-%m-%d') -
-            __import__('datetime').datetime.strptime(gl['date'], '%Y-%m-%d')
-        ).days)
-        st.metric("Date Difference", f"{date_diff} days")
+        # Calculate date diff based on vertical
+        try:
+            if vertical == "Healthcare":
+                date1_str = gl.get('request_date', '2024-01-01')
+                date2_str = bank.get('documentation_date', '2024-01-01')
+            else:
+                date1_str = gl.get('date', '2024-01-01')
+                date2_str = bank.get('date', '2024-01-01')
+
+            date_diff = abs((
+                __import__('datetime').datetime.strptime(date2_str, '%Y-%m-%d') -
+                __import__('datetime').datetime.strptime(date1_str, '%Y-%m-%d')
+            ).days)
+            st.metric("Date Difference", f"{date_diff} days")
+        except:
+            st.metric("Date Difference", "N/A")
 
     # Transactions
-    st.subheader("Transaction Details")
+    st.subheader("Details")
 
     col1, col2 = st.columns(2)
 
     with col1:
-        st.markdown("### GL Transaction")
+        st.markdown(f"### {labels['data1_label']}")
         st.json(gl)
 
     with col2:
-        st.markdown("### Bank Transaction")
+        st.markdown(f"### {labels['data2_label']}")
         st.json(bank)
 
     # Agent Scores (simulated)
@@ -734,14 +856,27 @@ def show_live_processing(gl_transactions, bank_transactions, expected_matches):
     import time
     import plotly.graph_objects as go
 
+    vertical = st.session_state.get('vertical', 'Finance')
+    labels = get_vertical_labels(vertical)
+
     st.header("🚀 Live Case Processing")
-    st.markdown("Process reconciliation cases in real-time and watch the multi-agent system in action")
+    st.markdown(f"Process {labels['case_label'].lower()} cases in real-time and watch the multi-agent system in action")
 
     # Case selection
     col1, col2 = st.columns([2, 1])
 
     with col1:
-        case_options = [f"{m['case_id']} - {m['gl_id']} ↔ {m['bank_id']}" for m in expected_matches]
+        # Build case options based on vertical
+        case_options = []
+        for m in expected_matches:
+            if vertical == "Healthcare":
+                id1 = m.get('pa_id', m.get('gl_id', 'N/A'))
+                id2 = m.get('clinical_id', m.get('bank_id', 'N/A'))
+            else:
+                id1 = m.get('gl_id', 'N/A')
+                id2 = m.get('bank_id', 'N/A')
+            case_options.append(f"{m['case_id']} - {id1} ↔ {id2}")
+
         selected_case_idx = st.selectbox("Select Case to Process", range(len(case_options)), format_func=lambda i: case_options[i])
         selected_match = expected_matches[selected_case_idx]
 
@@ -825,9 +960,16 @@ def show_live_processing(gl_transactions, bank_transactions, expected_matches):
         )
 
     elif process_button:
-        # Get GL and Bank transactions for this case
-        gl = next(g for g in gl_transactions if g["id"] == selected_match["gl_id"])
-        bank = next(b for b in bank_transactions if b["id"] == selected_match["bank_id"])
+        # Get data1 and data2 for this case (vertical-aware)
+        if vertical == "Healthcare":
+            data1_id = selected_match.get("pa_id")
+            data2_id = selected_match.get("clinical_id")
+        else:
+            data1_id = selected_match.get("gl_id")
+            data2_id = selected_match.get("bank_id")
+
+        gl = next((g for g in gl_transactions if g.get("id") == data1_id), {})
+        bank = next((b for b in bank_transactions if b.get("id") == data2_id), {})
 
         # Create progress containers
         progress_bar = st.progress(0)
@@ -920,8 +1062,12 @@ def show_live_processing(gl_transactions, bank_transactions, expected_matches):
             col1, col2, col3 = st.columns(3)
 
             with col1:
-                st.metric("GL Amount", f"${gl['amount']:,.2f}")
-                st.metric("Bank Amount", f"${bank['amount']:,.2f}")
+                # Get amount field based on vertical
+                amount_field = labels.get('amount_field', 'amount')
+                amount1 = gl.get(amount_field, 0)
+                amount2 = bank.get(amount_field, 0)
+                st.metric(f"{labels['data1_label']} Amount", f"${amount1:,.2f}")
+                st.metric(f"{labels['data2_label']} Amount", f"${amount2:,.2f}")
 
             with col2:
                 st.metric("Match Score", f"{selected_match['match_score']:.0%}")

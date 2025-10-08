@@ -1,0 +1,360 @@
+[
+  {
+    "id": "CLINICAL_20240322_001",
+    "pa_request_id": "PA_20240322_001",
+    "patient_id": "MRN334053",
+    "documentation_date": "2024-03-22",
+    "clinical_notes": "Patient presents with Atherosclerotic heart disease. Conservative treatment attempted for 6 weeks without improvement. Imaging studies confirm diagnosis. Procedure medically necessary per clinical guidelines.",
+    "prior_treatments": [
+      "Physical therapy - 6 weeks",
+      "NSAIDs - 8 weeks",
+      "Imaging studies completed"
+    ],
+    "contraindications": [],
+    "comorbidities": [
+      "hypertension",
+      "hyperlipidemia"
+    ],
+    "lab_results": "Within normal limits",
+    "imaging_results": "Confirms Atherosclerotic heart disease",
+    "medical_necessity_score": 0.9462868068067978
+  },
+  {
+    "id": "CLINICAL_20240316_002",
+    "pa_request_id": "PA_20240316_002",
+    "patient_id": "MRN329258",
+    "documentation_date": "2024-03-16",
+    "clinical_notes": "Patient presents with Atherosclerotic heart disease. Conservative treatment attempted for 6 weeks without improvement. Imaging studies confirm diagnosis. Procedure medically necessary per clinical guidelines.",
+    "prior_treatments": [
+      "Physical therapy - 6 weeks",
+      "NSAIDs - 8 weeks",
+      "Imaging studies completed"
+    ],
+    "contraindications": [],
+    "comorbidities": [
+      "hypertension",
+      "hyperlipidemia"
+    ],
+    "lab_results": "Within normal limits",
+    "imaging_results": "Confirms Atherosclerotic heart disease",
+    "medical_necessity_score": 0.8758488945892643
+  },
+  {
+    "id": "CLINICAL_20240310_003",
+    "pa_request_id": "PA_20240310_003",
+    "patient_id": "MRN391704",
+    "documentation_date": "2024-03-10",
+    "clinical_notes": "Patient presents with Calculus of gallbladder. Conservative treatment attempted for 6 weeks without improvement. Imaging studies confirm diagnosis. Procedure medically necessary per clinical guidelines.",
+    "prior_treatments": [
+      "Physical therapy - 6 weeks",
+      "NSAIDs - 8 weeks",
+      "Imaging studies completed"
+    ],
+    "contraindications": [],
+    "comorbidities": [],
+    "lab_results": "Within normal limits",
+    "imaging_results": "Confirms Calculus of gallbladder",
+    "medical_necessity_score": 0.9486449577268697
+  },
+  {
+    "id": "CLINICAL_20240224_004",
+    "pa_request_id": "PA_20240224_004",
+    "patient_id": "MRN900581",
+    "documentation_date": "2024-02-24",
+    "clinical_notes": "Patient presents with Cerebral infarction. Conservative treatment attempted for 6 weeks without improvement. Imaging studies confirm diagnosis. Procedure medically necessary per clinical guidelines.",
+    "prior_treatments": [
+      "Physical therapy - 6 weeks",
+      "NSAIDs - 8 weeks",
+      "Imaging studies completed"
+    ],
+    "contraindications": [],
+    "comorbidities": [],
+    "lab_results": "Within normal limits",
+    "imaging_results": "Confirms Cerebral infarction",
+    "medical_necessity_score": 0.8620569596394192
+  },
+  {
+    "id": "CLINICAL_20240214_005",
+    "pa_request_id": "PA_20240214_005",
+    "patient_id": "MRN581741",
+    "documentation_date": "2024-02-14",
+    "clinical_notes": "Patient presents with Cerebral infarction. Conservative treatment attempted for 6 weeks without improvement. Imaging studies confirm diagnosis. Procedure medically necessary per clinical guidelines.",
+    "prior_treatments": [
+      "Physical therapy - 6 weeks",
+      "NSAIDs - 8 weeks",
+      "Imaging studies completed"
+    ],
+    "contraindications": [],
+    "comorbidities": [],
+    "lab_results": "Within normal limits",
+    "imaging_results": "Confirms Cerebral infarction",
+    "medical_necessity_score": 0.9765050493173182
+  },
+  {
+    "id": "CLINICAL_20240311_006",
+    "pa_request_id": "PA_20240311_006",
+    "patient_id": "MRN172933",
+    "documentation_date": "2024-03-11",
+    "clinical_notes": "Patient presents with Cerebral infarction. Conservative treatment attempted for 6 weeks without improvement. Imaging studies confirm diagnosis. Procedure medically necessary per clinical guidelines.",
+    "prior_treatments": [
+      "Physical therapy - 6 weeks",
+      "NSAIDs - 8 weeks",
+      "Imaging studies completed"
+    ],
+    "contraindications": [],
+    "comorbidities": [
+      "diabetes",
+      "asthma"
+    ],
+    "lab_results": "Within normal limits",
+    "imaging_results": "Confirms Cerebral infarction",
+    "medical_necessity_score": 0.9780787976858984
+  },
+  {
+    "id": "CLINICAL_20240113_007",
+    "pa_request_id": "PA_20240113_007",
+    "patient_id": "MRN974628",
+    "documentation_date": "2024-01-13",
+    "clinical_notes": "Patient presents with Cerebral infarction. Conservative treatment attempted for 6 weeks without improvement. Imaging studies confirm diagnosis. Procedure medically necessary per clinical guidelines.",
+    "prior_treatments": [
+      "Physical therapy - 6 weeks",
+      "NSAIDs - 8 weeks",
+      "Imaging studies completed"
+    ],
+    "contraindications": [],
+    "comorbidities": [],
+    "lab_results": "Within normal limits",
+    "imaging_results": "Confirms Cerebral infarction",
+    "medical_necessity_score": 0.8981235257251947
+  },
+  {
+    "id": "CLINICAL_20240204_008",
+    "pa_request_id": "PA_20240204_008",
+    "patient_id": "MRN271339",
+    "documentation_date": "2024-02-04",
+    "clinical_notes": "Patient complains of Type 2 diabetes mellitus. Procedure recommended.",
+    "prior_treatments": [
+      "Conservative management attempted"
+    ],
+    "contraindications": [],
+    "comorbidities": [
+      "diabetes",
+      "obesity",
+      "smoking"
+    ],
+    "lab_results": "Available",
+    "imaging_results": "Shows Type 2 diabetes mellitus",
+    "medical_necessity_score": 0.6379455441757648
+  },
+  {
+    "id": "CLINICAL_20240108_009",
+    "pa_request_id": "PA_20240108_009",
+    "patient_id": "MRN169403",
+    "documentation_date": "2024-01-08",
+    "clinical_notes": "Patient with Pain in right knee. Less invasive options available but patient preference for surgical intervention.",
+    "prior_treatments": [
+      "Physical therapy - 6 weeks",
+      "Medications"
+    ],
+    "contraindications": [],
+    "comorbidities": [
+      "obesity",
+      "hypertension",
+      "diabetes"
+    ],
+    "lab_results": "Available",
+    "imaging_results": "Shows Pain in right knee",
+    "medical_necessity_score": 0.7913136124185546
+  },
+  {
+    "id": "CLINICAL_20240323_010",
+    "pa_request_id": "PA_20240323_010",
+    "patient_id": "MRN881177",
+    "documentation_date": "2024-03-23",
+    "clinical_notes": "Patient complains of Low back pain. Procedure recommended.",
+    "prior_treatments": [
+      "Conservative management attempted"
+    ],
+    "contraindications": [],
+    "comorbidities": [
+      "smoking",
+      "obesity",
+      "diabetes"
+    ],
+    "lab_results": "Available",
+    "imaging_results": "Shows Low back pain",
+    "medical_necessity_score": 0.653897728966729
+  },
+  {
+    "id": "CLINICAL_20240118_011",
+    "pa_request_id": "PA_20240118_011",
+    "patient_id": "MRN260265",
+    "documentation_date": "2024-01-18",
+    "clinical_notes": "Patient with Rotator cuff tear. Conservative treatment attempted for 3 weeks with partial improvement. Patient requesting procedure.",
+    "prior_treatments": [
+      "Physical therapy - 3 weeks",
+      "OTC pain medication"
+    ],
+    "contraindications": [],
+    "comorbidities": [
+      "smoking",
+      "obesity",
+      "hypertension"
+    ],
+    "lab_results": "Available",
+    "imaging_results": "Shows Rotator cuff tear",
+    "medical_necessity_score": 0.6659982001722451
+  },
+  {
+    "id": "CLINICAL_20240317_012",
+    "pa_request_id": "PA_20240317_012",
+    "patient_id": "MRN813328",
+    "documentation_date": "2024-03-17",
+    "clinical_notes": "Patient with Type 2 diabetes mellitus. Conservative treatment attempted for 3 weeks with partial improvement. Patient requesting procedure.",
+    "prior_treatments": [
+      "Physical therapy - 3 weeks",
+      "OTC pain medication"
+    ],
+    "contraindications": [],
+    "comorbidities": [
+      "obesity",
+      "smoking",
+      "diabetes"
+    ],
+    "lab_results": "Available",
+    "imaging_results": "Shows Type 2 diabetes mellitus",
+    "medical_necessity_score": 0.7181710369026575
+  },
+  {
+    "id": "CLINICAL_20240225_013",
+    "pa_request_id": "PA_20240225_013",
+    "patient_id": "MRN624902",
+    "documentation_date": "2024-02-25",
+    "clinical_notes": "Patient with Rotator cuff tear. Less invasive options available but patient preference for surgical intervention.",
+    "prior_treatments": [
+      "Physical therapy - 6 weeks",
+      "Medications"
+    ],
+    "contraindications": [],
+    "comorbidities": [
+      "obesity"
+    ],
+    "lab_results": "Available",
+    "imaging_results": "Shows Rotator cuff tear",
+    "medical_necessity_score": 0.7507681674604325
+  },
+  {
+    "id": "CLINICAL_20240305_014",
+    "pa_request_id": "PA_20240305_014",
+    "patient_id": "MRN665579",
+    "documentation_date": "2024-03-05",
+    "clinical_notes": "Patient complains of Low back pain. Procedure recommended.",
+    "prior_treatments": [
+      "Conservative management attempted"
+    ],
+    "contraindications": [],
+    "comorbidities": [
+      "obesity",
+      "diabetes",
+      "hypertension"
+    ],
+    "lab_results": "Available",
+    "imaging_results": "Shows Low back pain",
+    "medical_necessity_score": 0.6918493494395702
+  },
+  {
+    "id": "CLINICAL_20240216_015",
+    "pa_request_id": "PA_20240216_015",
+    "patient_id": "MRN189814",
+    "documentation_date": "2024-02-16",
+    "clinical_notes": "Patient with Low back pain. Conservative treatment attempted for 3 weeks with partial improvement. Patient requesting procedure.",
+    "prior_treatments": [
+      "Physical therapy - 3 weeks",
+      "OTC pain medication"
+    ],
+    "contraindications": [],
+    "comorbidities": [
+      "diabetes",
+      "hypertension",
+      "smoking"
+    ],
+    "lab_results": "Available",
+    "imaging_results": "Shows Low back pain",
+    "medical_necessity_score": 0.7316023253420089
+  },
+  {
+    "id": "CLINICAL_20240122_016",
+    "pa_request_id": "PA_20240122_016",
+    "patient_id": "MRN665492",
+    "documentation_date": "2024-01-22",
+    "clinical_notes": "Patient with Type 2 diabetes mellitus",
+    "prior_treatments": [
+      "Conservative treatment"
+    ],
+    "contraindications": [],
+    "comorbidities": [],
+    "lab_results": "Available",
+    "imaging_results": "Not submitted",
+    "medical_necessity_score": 0.5569423459228683
+  },
+  {
+    "id": "CLINICAL_20240326_017",
+    "pa_request_id": "PA_20240326_017",
+    "patient_id": "MRN359947",
+    "documentation_date": "2024-03-26",
+    "clinical_notes": "Patient with Cerebral infarction",
+    "prior_treatments": [],
+    "contraindications": [],
+    "comorbidities": [],
+    "lab_results": "Available",
+    "imaging_results": "Available",
+    "medical_necessity_score": 0.5007128343221183
+  },
+  {
+    "id": "CLINICAL_20240130_018",
+    "pa_request_id": "PA_20240130_018",
+    "patient_id": "MRN842225",
+    "documentation_date": "2024-01-30",
+    "clinical_notes": "Patient with Low back pain",
+    "prior_treatments": [],
+    "contraindications": [],
+    "comorbidities": [],
+    "lab_results": "Available",
+    "imaging_results": "Available",
+    "medical_necessity_score": 0.4843412675716732
+  },
+  {
+    "id": "CLINICAL_20240212_019",
+    "pa_request_id": "PA_20240212_019",
+    "patient_id": "MRN324643",
+    "documentation_date": "2024-02-12",
+    "clinical_notes": "Procedure not medically necessary for Gastroesophageal reflux disease with low severity.",
+    "prior_treatments": [
+      "Minimal conservative treatment"
+    ],
+    "contraindications": [
+      "Procedure not indicated"
+    ],
+    "comorbidities": [],
+    "lab_results": "Normal",
+    "imaging_results": "No significant findings",
+    "medical_necessity_score": 0.17646236974500498
+  },
+  {
+    "id": "CLINICAL_20240314_020",
+    "pa_request_id": "PA_20240314_020",
+    "patient_id": "MRN299659",
+    "documentation_date": "2024-03-14",
+    "clinical_notes": "Procedure not medically necessary for Gastroesophageal reflux disease with low severity.",
+    "prior_treatments": [
+      "Minimal conservative treatment"
+    ],
+    "contraindications": [
+      "Procedure not indicated"
+    ],
+    "comorbidities": [],
+    "lab_results": "Normal",
+    "imaging_results": "No significant findings",
+    "medical_necessity_score": 0.16938616284576466
+  }
+]

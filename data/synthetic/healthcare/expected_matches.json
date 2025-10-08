@@ -1,0 +1,162 @@
+[
+  {
+    "case_id": "HEALTHCARE_2024_001",
+    "pa_id": "PA_20240322_001",
+    "clinical_id": "CLINICAL_20240322_001",
+    "expected_decision": "auto_resolve",
+    "match_score": 0.9490829880373515,
+    "notes": "Clear medical necessity - high severity diagnosis with documented conservative treatment failure"
+  },
+  {
+    "case_id": "HEALTHCARE_2024_002",
+    "pa_id": "PA_20240316_002",
+    "clinical_id": "CLINICAL_20240316_002",
+    "expected_decision": "auto_resolve",
+    "match_score": 0.9584895994001571,
+    "notes": "Clear medical necessity - high severity diagnosis with documented conservative treatment failure"
+  },
+  {
+    "case_id": "HEALTHCARE_2024_003",
+    "pa_id": "PA_20240310_003",
+    "clinical_id": "CLINICAL_20240310_003",
+    "expected_decision": "auto_resolve",
+    "match_score": 0.9143693384739201,
+    "notes": "Clear medical necessity - high severity diagnosis with documented conservative treatment failure"
+  },
+  {
+    "case_id": "HEALTHCARE_2024_004",
+    "pa_id": "PA_20240224_004",
+    "clinical_id": "CLINICAL_20240224_004",
+    "expected_decision": "auto_resolve",
+    "match_score": 0.9087044739150117,
+    "notes": "Clear medical necessity - critical severity diagnosis with documented conservative treatment failure"
+  },
+  {
+    "case_id": "HEALTHCARE_2024_005",
+    "pa_id": "PA_20240214_005",
+    "clinical_id": "CLINICAL_20240214_005",
+    "expected_decision": "auto_resolve",
+    "match_score": 0.9340680939487518,
+    "notes": "Clear medical necessity - critical severity diagnosis with documented conservative treatment failure"
+  },
+  {
+    "case_id": "HEALTHCARE_2024_006",
+    "pa_id": "PA_20240311_006",
+    "clinical_id": "CLINICAL_20240311_006",
+    "expected_decision": "auto_resolve",
+    "match_score": 0.9769785948913632,
+    "notes": "Clear medical necessity - critical severity diagnosis with documented conservative treatment failure"
+  },
+  {
+    "case_id": "HEALTHCARE_2024_007",
+    "pa_id": "PA_20240113_007",
+    "clinical_id": "CLINICAL_20240113_007",
+    "expected_decision": "auto_resolve",
+    "match_score": 0.9188556327694339,
+    "notes": "Clear medical necessity - critical severity diagnosis with documented conservative treatment failure"
+  },
+  {
+    "case_id": "HEALTHCARE_2024_008",
+    "pa_id": "PA_20240204_008",
+    "clinical_id": "CLINICAL_20240204_008",
+    "expected_decision": "hitl_review",
+    "match_score": 0.7932848264322676,
+    "notes": "Borderline case - unclear medical necessity - requires clinical review"
+  },
+  {
+    "case_id": "HEALTHCARE_2024_009",
+    "pa_id": "PA_20240108_009",
+    "clinical_id": "CLINICAL_20240108_009",
+    "expected_decision": "hitl_review",
+    "match_score": 0.7172574231803129,
+    "notes": "Borderline case - alternative available - requires clinical review"
+  },
+  {
+    "case_id": "HEALTHCARE_2024_010",
+    "pa_id": "PA_20240323_010",
+    "clinical_id": "CLINICAL_20240323_010",
+    "expected_decision": "hitl_review",
+    "match_score": 0.7115393954313138,
+    "notes": "Borderline case - unclear medical necessity - requires clinical review"
+  },
+  {
+    "case_id": "HEALTHCARE_2024_011",
+    "pa_id": "PA_20240118_011",
+    "clinical_id": "CLINICAL_20240118_011",
+    "expected_decision": "hitl_review",
+    "match_score": 0.715410442984665,
+    "notes": "Borderline case - short conservative treatment - requires clinical review"
+  },
+  {
+    "case_id": "HEALTHCARE_2024_012",
+    "pa_id": "PA_20240317_012",
+    "clinical_id": "CLINICAL_20240317_012",
+    "expected_decision": "hitl_review",
+    "match_score": 0.668963869511299,
+    "notes": "Borderline case - short conservative treatment - requires clinical review"
+  },
+  {
+    "case_id": "HEALTHCARE_2024_013",
+    "pa_id": "PA_20240225_013",
+    "clinical_id": "CLINICAL_20240225_013",
+    "expected_decision": "hitl_review",
+    "match_score": 0.7930837891893194,
+    "notes": "Borderline case - alternative available - requires clinical review"
+  },
+  {
+    "case_id": "HEALTHCARE_2024_014",
+    "pa_id": "PA_20240305_014",
+    "clinical_id": "CLINICAL_20240305_014",
+    "expected_decision": "hitl_review",
+    "match_score": 0.6690175133045522,
+    "notes": "Borderline case - unclear medical necessity - requires clinical review"
+  },
+  {
+    "case_id": "HEALTHCARE_2024_015",
+    "pa_id": "PA_20240216_015",
+    "clinical_id": "CLINICAL_20240216_015",
+    "expected_decision": "hitl_review",
+    "match_score": 0.8109642755498484,
+    "notes": "Borderline case - short conservative treatment - requires clinical review"
+  },
+  {
+    "case_id": "HEALTHCARE_2024_016",
+    "pa_id": "PA_20240122_016",
+    "clinical_id": "CLINICAL_20240122_016",
+    "expected_decision": "request_info",
+    "match_score": 0.47979845999948584,
+    "notes": "Incomplete documentation - missing imaging results"
+  },
+  {
+    "case_id": "HEALTHCARE_2024_017",
+    "pa_id": "PA_20240326_017",
+    "clinical_id": "CLINICAL_20240326_017",
+    "expected_decision": "request_info",
+    "match_score": 0.5176617436914467,
+    "notes": "Incomplete documentation - missing prior treatments"
+  },
+  {
+    "case_id": "HEALTHCARE_2024_018",
+    "pa_id": "PA_20240130_018",
+    "clinical_id": "CLINICAL_20240130_018",
+    "expected_decision": "request_info",
+    "match_score": 0.5810840026012256,
+    "notes": "Incomplete documentation - missing prior treatments"
+  },
+  {
+    "case_id": "HEALTHCARE_2024_019",
+    "pa_id": "PA_20240212_019",
+    "clinical_id": "CLINICAL_20240212_019",
+    "expected_decision": "reject",
+    "match_score": 0.33710284811613417,
+    "notes": "Denial recommended - not medically necessary"
+  },
+  {
+    "case_id": "HEALTHCARE_2024_020",
+    "pa_id": "PA_20240314_020",
+    "clinical_id": "CLINICAL_20240314_020",
+    "expected_decision": "reject",
+    "match_score": 0.23621023648127548,
+    "notes": "Denial recommended - not medically necessary"
+  }
+]
