@@ -5,6 +5,7 @@ description = "QURE: Quality & Uncertainty Resolution Engine - Multi-Agent Intel
 authors = ["Michael Pointer <mpointer@gmail.com>"]
 readme = "README.md"
 license = "MIT"
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.11"
