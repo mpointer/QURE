@@ -1,0 +1,84 @@
+[
+  {
+    "rule_id": "FR_R1_amount_match",
+    "description": "GL and Bank amounts must match within tolerance",
+    "condition": "abs(gl_amount - bank_amount) <= 0.01",
+    "action": "pass",
+    "mandatory": true,
+    "priority": 1
+  },
+  {
+    "rule_id": "FR_R2_date_proximity",
+    "description": "Transaction dates must be within 3 days",
+    "condition": "abs(date_diff_days) <= 3",
+    "action": "pass",
+    "mandatory": false,
+    "priority": 2
+  },
+  {
+    "rule_id": "FR_R3_high_value_requires_swift",
+    "description": "Transactions over $10,000 require SWIFT reference (SOX control)",
+    "condition": "gl_amount < 10000 or swift_ref is not None",
+    "action": "fail",
+    "mandatory": true,
+    "priority": 1,
+    "compliance": "SOX"
+  },
+  {
+    "rule_id": "FR_R4_payer_match",
+    "description": "Payer names should match",
+    "condition": "gl_payer == bank_payer",
+    "action": "pass",
+    "mandatory": false,
+    "priority": 3
+  },
+  {
+    "rule_id": "FR_R5_duplicate_detection",
+    "description": "No duplicate reconciliations allowed",
+    "condition": "not is_duplicate",
+    "action": "fail",
+    "mandatory": true,
+    "priority": 1
+  },
+  {
+    "rule_id": "FR_R6_memo_similarity",
+    "description": "Memo fields should have reasonable similarity",
+    "condition": "memo_similarity >= 0.3",
+    "action": "pass",
+    "mandatory": false,
+    "priority": 4
+  },
+  {
+    "rule_id": "FR_R7_currency_match",
+    "description": "Currency codes must match",
+    "condition": "gl_currency == bank_currency",
+    "action": "fail",
+    "mandatory": true,
+    "priority": 1
+  },
+  {
+    "rule_id": "FR_R8_status_valid",
+    "description": "GL entry must be in 'unreconciled' status",
+    "condition": "gl_status in ['unreconciled', 'pending']",
+    "action": "fail",
+    "mandatory": true,
+    "priority": 1
+  },
+  {
+    "rule_id": "FR_R9_approval_required",
+    "description": "Transactions over $50,000 require manager approval",
+    "condition": "gl_amount < 50000",
+    "action": "needs_evidence",
+    "requires_evidence": ["manager_approval"],
+    "mandatory": true,
+    "priority": 1
+  },
+  {
+    "rule_id": "FR_R10_business_days",
+    "description": "Reconciliation must occur within 5 business days",
+    "condition": "business_days_elapsed <= 5",
+    "action": "pass",
+    "mandatory": false,
+    "priority": 2
+  }
+]
