@@ -20,6 +20,8 @@ def get_vertical_id_fields(vertical):
         "Finance": ("gl_id", "bank_id"),
         "Healthcare": ("pa_id", "clinical_id"),
         "Insurance": ("claim_id", "evidence_id"),
+        "Retail": ("pos_id", "physical_id"),
+        "Manufacturing": ("po_id", "receipt_id"),
     }
     return id_fields.get(vertical, ("gl_id", "bank_id"))
 
@@ -60,6 +62,28 @@ def get_vertical_labels(vertical):
             "entity_field": "insured_name",
             "memo_field": "claim_type",
         },
+        "Retail": {
+            "data1_label": "POS Inventory",
+            "data2_label": "Physical Count",
+            "case_label": "Inventory Reconciliation",
+            "id1_field": "id",
+            "id2_field": "id",
+            "amount_field": "quantity_on_hand",
+            "date_field": "count_date",
+            "entity_field": "product_name",
+            "memo_field": "category",
+        },
+        "Manufacturing": {
+            "data1_label": "Purchase Order",
+            "data2_label": "Shipment Receipt",
+            "case_label": "Supply Chain Reconciliation",
+            "id1_field": "id",
+            "id2_field": "id",
+            "amount_field": "ordered_quantity",
+            "date_field": "order_date",
+            "entity_field": "supplier",
+            "memo_field": "part_description",
+        },
     }
     return labels.get(vertical, labels["Finance"])
 
@@ -84,14 +108,14 @@ def load_test_data(vertical="Finance"):
             "keys": ["claims", "evidence", "matches"]
         },
         "Retail": {
-            "dir": "finance",  # Fallback to finance for now
-            "files": ["gl_transactions.json", "bank_transactions.json", "expected_matches.json"],
-            "keys": ["gl", "bank", "matches"]
+            "dir": "retail",
+            "files": ["pos_inventory.json", "physical_count.json", "expected_matches.json"],
+            "keys": ["pos", "physical", "matches"]
         },
         "Manufacturing": {
-            "dir": "finance",  # Fallback to finance for now
-            "files": ["gl_transactions.json", "bank_transactions.json", "expected_matches.json"],
-            "keys": ["gl", "bank", "matches"]
+            "dir": "manufacturing",
+            "files": ["purchase_orders.json", "shipment_receipts.json", "expected_matches.json"],
+            "keys": ["purchase_orders", "receipts", "matches"]
         },
     }
 

@@ -1,0 +1,202 @@
+[
+  {
+    "case_id": "RECON_2024_001",
+    "po_id": "PO_20240322_001",
+    "receipt_id": "REC_20240401_001",
+    "expected_decision": "auto_resolve",
+    "match_score": 1.0,
+    "quantity_variance": 0,
+    "variance_pct": 0.0,
+    "notes": "Exact match - complete shipment received"
+  },
+  {
+    "case_id": "RECON_2024_002",
+    "po_id": "PO_20240327_002",
+    "receipt_id": "REC_20240402_002",
+    "expected_decision": "auto_resolve",
+    "match_score": 1.0,
+    "quantity_variance": 0,
+    "variance_pct": 0.0,
+    "notes": "Exact match - complete shipment received"
+  },
+  {
+    "case_id": "RECON_2024_003",
+    "po_id": "PO_20240130_003",
+    "receipt_id": "REC_20240211_003",
+    "expected_decision": "auto_resolve",
+    "match_score": 1.0,
+    "quantity_variance": 0,
+    "variance_pct": 0.0,
+    "notes": "Exact match - complete shipment received"
+  },
+  {
+    "case_id": "RECON_2024_004",
+    "po_id": "PO_20240316_004",
+    "receipt_id": "REC_20240328_004",
+    "expected_decision": "auto_resolve",
+    "match_score": 1.0,
+    "quantity_variance": 0,
+    "variance_pct": 0.0,
+    "notes": "Exact match - complete shipment received"
+  },
+  {
+    "case_id": "RECON_2024_005",
+    "po_id": "PO_20240128_005",
+    "receipt_id": "REC_20240209_005",
+    "expected_decision": "auto_resolve",
+    "match_score": 1.0,
+    "quantity_variance": 0,
+    "variance_pct": 0.0,
+    "notes": "Exact match - complete shipment received"
+  },
+  {
+    "case_id": "RECON_2024_006",
+    "po_id": "PO_20240203_006",
+    "receipt_id": "REC_20240215_006",
+    "expected_decision": "auto_resolve",
+    "match_score": 1.0,
+    "quantity_variance": 0,
+    "variance_pct": 0.0,
+    "notes": "Exact match - complete shipment received"
+  },
+  {
+    "case_id": "RECON_2024_007",
+    "po_id": "PO_20240207_007",
+    "receipt_id": "REC_20240214_007",
+    "expected_decision": "auto_resolve",
+    "match_score": 1.0,
+    "quantity_variance": 0,
+    "variance_pct": 0.0,
+    "notes": "Exact match - complete shipment received"
+  },
+  {
+    "case_id": "RECON_2024_008",
+    "po_id": "PO_20240207_008",
+    "receipt_id": "REC_20240219_008",
+    "expected_decision": "hitl_review",
+    "match_score": 0.75,
+    "quantity_variance": -296,
+    "variance_pct": -31.93,
+    "notes": "Partial shipment - 31.9% short. Remaining quantity expected on backorder."
+  },
+  {
+    "case_id": "RECON_2024_009",
+    "po_id": "PO_20240215_009",
+    "receipt_id": "REC_20240224_009",
+    "expected_decision": "hitl_review",
+    "match_score": 0.75,
+    "quantity_variance": -371,
+    "variance_pct": -24.14,
+    "notes": "Partial shipment - 24.1% short. Remaining quantity expected on backorder."
+  },
+  {
+    "case_id": "RECON_2024_010",
+    "po_id": "PO_20240229_010",
+    "receipt_id": "REC_20240312_010",
+    "expected_decision": "hitl_review",
+    "match_score": 0.75,
+    "quantity_variance": -17329,
+    "variance_pct": -41.22,
+    "notes": "Partial shipment - 41.2% short. Remaining quantity expected on backorder."
+  },
+  {
+    "case_id": "RECON_2024_011",
+    "po_id": "PO_20240105_011",
+    "receipt_id": "REC_20240117_011",
+    "expected_decision": "hitl_review",
+    "match_score": 0.75,
+    "quantity_variance": -605,
+    "variance_pct": -13.49,
+    "notes": "Partial shipment - 13.5% short. Remaining quantity expected on backorder."
+  },
+  {
+    "case_id": "RECON_2024_012",
+    "po_id": "PO_20240220_012",
+    "receipt_id": "REC_20240303_012",
+    "expected_decision": "hitl_review",
+    "match_score": 0.75,
+    "quantity_variance": -3527,
+    "variance_pct": -20.2,
+    "notes": "Partial shipment - 20.2% short. Remaining quantity expected on backorder."
+  },
+  {
+    "case_id": "RECON_2024_013",
+    "po_id": "PO_20240221_013",
+    "receipt_id": "REC_20240228_013",
+    "expected_decision": "hitl_review",
+    "match_score": 0.75,
+    "quantity_variance": -1097,
+    "variance_pct": -46.37,
+    "notes": "Partial shipment - 46.4% short. Remaining quantity expected on backorder."
+  },
+  {
+    "case_id": "RECON_2024_014",
+    "po_id": "PO_20240321_014",
+    "receipt_id": "REC_20240405_014",
+    "expected_decision": "hitl_review",
+    "match_score": 0.6,
+    "quantity_variance": 105,
+    "variance_pct": 7.95,
+    "notes": "Variance (7.9%) - Invoice quantity mismatch - received more than ordered. Requires investigation and supplier follow-up."
+  },
+  {
+    "case_id": "RECON_2024_015",
+    "po_id": "PO_20240102_015",
+    "receipt_id": "REC_20240110_015",
+    "expected_decision": "hitl_review",
+    "match_score": 0.6,
+    "quantity_variance": 167,
+    "variance_pct": 5.79,
+    "notes": "Variance (5.8%) - Invoice quantity mismatch - received more than ordered. Requires investigation and supplier follow-up."
+  },
+  {
+    "case_id": "RECON_2024_016",
+    "po_id": "PO_20240123_016",
+    "receipt_id": "REC_20240202_016",
+    "expected_decision": "hitl_review",
+    "match_score": 0.6,
+    "quantity_variance": -74,
+    "variance_pct": -7.47,
+    "notes": "Variance (7.5%) - Damaged in transit - 74 units rejected. Requires investigation and supplier follow-up."
+  },
+  {
+    "case_id": "RECON_2024_017",
+    "po_id": "PO_20240121_017",
+    "receipt_id": "REC_20240201_017",
+    "expected_decision": "hitl_review",
+    "match_score": 0.6,
+    "quantity_variance": -44,
+    "variance_pct": -6.17,
+    "notes": "Variance (6.2%) - Receiving dock error. Requires investigation and supplier follow-up."
+  },
+  {
+    "case_id": "RECON_2024_018",
+    "po_id": "PO_20240131_018",
+    "receipt_id": "REC_20240210_018",
+    "expected_decision": "hitl_review",
+    "match_score": 0.6,
+    "quantity_variance": -28,
+    "variance_pct": -14.97,
+    "notes": "Variance (15.0%) - Supplier short ship. Requires investigation and supplier follow-up."
+  },
+  {
+    "case_id": "RECON_2024_019",
+    "po_id": "PO_20240122_019",
+    "receipt_id": "REC_20240205_019",
+    "expected_decision": "reject",
+    "match_score": 0.15,
+    "quantity_variance": 0,
+    "variance_pct": 0.0,
+    "notes": "CRITICAL: Wrong part number received - supplier shipping error (0.0% variance). Immediate procurement and supplier management escalation required."
+  },
+  {
+    "case_id": "RECON_2024_020",
+    "po_id": "PO_20240226_020",
+    "receipt_id": "REC_20240309_020",
+    "expected_decision": "escalate",
+    "match_score": 0.15,
+    "quantity_variance": -223,
+    "variance_pct": -100.0,
+    "notes": "CRITICAL: Shipment not received - supplier claims shipped (100.0% variance). Immediate procurement and supplier management escalation required."
+  }
+]

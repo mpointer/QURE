@@ -1,0 +1,202 @@
+[
+  {
+    "case_id": "RECON_2024_001",
+    "pos_id": "POS_20240322_001",
+    "physical_id": "PHY_20240322_001",
+    "expected_decision": "auto_resolve",
+    "match_score": 1.0,
+    "variance": 0,
+    "variance_pct": 0.0,
+    "notes": "Exact match - no discrepancy"
+  },
+  {
+    "case_id": "RECON_2024_002",
+    "pos_id": "POS_20240327_002",
+    "physical_id": "PHY_20240327_002",
+    "expected_decision": "auto_resolve",
+    "match_score": 1.0,
+    "variance": 0,
+    "variance_pct": 0.0,
+    "notes": "Exact match - no discrepancy"
+  },
+  {
+    "case_id": "RECON_2024_003",
+    "pos_id": "POS_20240130_003",
+    "physical_id": "PHY_20240131_003",
+    "expected_decision": "auto_resolve",
+    "match_score": 1.0,
+    "variance": 0,
+    "variance_pct": 0.0,
+    "notes": "Exact match - no discrepancy"
+  },
+  {
+    "case_id": "RECON_2024_004",
+    "pos_id": "POS_20240227_004",
+    "physical_id": "PHY_20240227_004",
+    "expected_decision": "auto_resolve",
+    "match_score": 1.0,
+    "variance": 0,
+    "variance_pct": 0.0,
+    "notes": "Exact match - no discrepancy"
+  },
+  {
+    "case_id": "RECON_2024_005",
+    "pos_id": "POS_20240213_005",
+    "physical_id": "PHY_20240214_005",
+    "expected_decision": "auto_resolve",
+    "match_score": 1.0,
+    "variance": 0,
+    "variance_pct": 0.0,
+    "notes": "Exact match - no discrepancy"
+  },
+  {
+    "case_id": "RECON_2024_006",
+    "pos_id": "POS_20240112_006",
+    "physical_id": "PHY_20240113_006",
+    "expected_decision": "auto_resolve",
+    "match_score": 1.0,
+    "variance": 0,
+    "variance_pct": 0.0,
+    "notes": "Exact match - no discrepancy"
+  },
+  {
+    "case_id": "RECON_2024_007",
+    "pos_id": "POS_20240228_007",
+    "physical_id": "PHY_20240229_007",
+    "expected_decision": "auto_resolve",
+    "match_score": 1.0,
+    "variance": 0,
+    "variance_pct": 0.0,
+    "notes": "Exact match - no discrepancy"
+  },
+  {
+    "case_id": "RECON_2024_008",
+    "pos_id": "POS_20240216_008",
+    "physical_id": "PHY_20240216_008",
+    "expected_decision": "auto_resolve",
+    "match_score": 1.0,
+    "variance": 0,
+    "variance_pct": 0.0,
+    "notes": "Exact match - no discrepancy"
+  },
+  {
+    "case_id": "RECON_2024_009",
+    "pos_id": "POS_20240111_009",
+    "physical_id": "PHY_20240112_009",
+    "expected_decision": "auto_resolve",
+    "match_score": 0.85,
+    "variance": 9,
+    "variance_pct": 1.83,
+    "notes": "Minor variance (1.8%) - within acceptable tolerance"
+  },
+  {
+    "case_id": "RECON_2024_010",
+    "pos_id": "POS_20240121_010",
+    "physical_id": "PHY_20240122_010",
+    "expected_decision": "auto_resolve",
+    "match_score": 0.85,
+    "variance": -1,
+    "variance_pct": 1.59,
+    "notes": "Minor variance (1.6%) - within acceptable tolerance"
+  },
+  {
+    "case_id": "RECON_2024_011",
+    "pos_id": "POS_20240309_011",
+    "physical_id": "PHY_20240310_011",
+    "expected_decision": "auto_resolve",
+    "match_score": 0.85,
+    "variance": 1,
+    "variance_pct": 1.82,
+    "notes": "Minor variance (1.8%) - within acceptable tolerance"
+  },
+  {
+    "case_id": "RECON_2024_012",
+    "pos_id": "POS_20240129_012",
+    "physical_id": "PHY_20240130_012",
+    "expected_decision": "auto_resolve",
+    "match_score": 0.85,
+    "variance": -1,
+    "variance_pct": 1.35,
+    "notes": "Minor variance (1.4%) - within acceptable tolerance"
+  },
+  {
+    "case_id": "RECON_2024_013",
+    "pos_id": "POS_20240221_013",
+    "physical_id": "PHY_20240222_013",
+    "expected_decision": "auto_resolve",
+    "match_score": 0.85,
+    "variance": 2,
+    "variance_pct": 3.17,
+    "notes": "Minor variance (3.2%) - within acceptable tolerance"
+  },
+  {
+    "case_id": "RECON_2024_014",
+    "pos_id": "POS_20240323_014",
+    "physical_id": "PHY_20240324_014",
+    "expected_decision": "auto_resolve",
+    "match_score": 0.85,
+    "variance": 2,
+    "variance_pct": 2.41,
+    "notes": "Minor variance (2.4%) - within acceptable tolerance"
+  },
+  {
+    "case_id": "RECON_2024_015",
+    "pos_id": "POS_20240315_015",
+    "physical_id": "PHY_20240316_015",
+    "expected_decision": "hitl_review",
+    "match_score": 0.65,
+    "variance": -7,
+    "variance_pct": 8.97,
+    "notes": "Major variance (9.0%) - requires investigation. Suspected: Theft/Shrinkage"
+  },
+  {
+    "case_id": "RECON_2024_016",
+    "pos_id": "POS_20240115_016",
+    "physical_id": "PHY_20240116_016",
+    "expected_decision": "hitl_review",
+    "match_score": 0.65,
+    "variance": 13,
+    "variance_pct": 8.23,
+    "notes": "Major variance (8.2%) - requires investigation. Suspected: Miscount during physical inventory"
+  },
+  {
+    "case_id": "RECON_2024_017",
+    "pos_id": "POS_20240202_017",
+    "physical_id": "PHY_20240203_017",
+    "expected_decision": "hitl_review",
+    "match_score": 0.65,
+    "variance": 28,
+    "variance_pct": 12.5,
+    "notes": "Major variance (12.5%) - requires investigation. Suspected: Damaged goods"
+  },
+  {
+    "case_id": "RECON_2024_018",
+    "pos_id": "POS_20240207_018",
+    "physical_id": "PHY_20240208_018",
+    "expected_decision": "hitl_review",
+    "match_score": 0.65,
+    "variance": 15,
+    "variance_pct": 13.89,
+    "notes": "Major variance (13.9%) - requires investigation. Suspected: Transfer not recorded"
+  },
+  {
+    "case_id": "RECON_2024_019",
+    "pos_id": "POS_20240305_019",
+    "physical_id": "PHY_20240306_019",
+    "expected_decision": "escalate",
+    "match_score": 0.25,
+    "variance": -50,
+    "variance_pct": 100.0,
+    "notes": "CRITICAL: Item not found during physical count - requires immediate investigation (100.0% variance)"
+  },
+  {
+    "case_id": "RECON_2024_020",
+    "pos_id": "POS_20240308_020",
+    "physical_id": "PHY_20240309_020",
+    "expected_decision": "reject",
+    "match_score": 0.25,
+    "variance": 18,
+    "variance_pct": 36.0,
+    "notes": "CRITICAL: Excess inventory - possible receiving error or system glitch (36.0% variance)"
+  }
+]
