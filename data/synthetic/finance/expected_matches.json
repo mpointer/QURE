@@ -3,7 +3,7 @@
     "case_id": "RECON_2024_001",
     "gl_id": "GL_20240322_001",
     "bank_id": "BANK_20240322_001",
-    "expected_decision": "auto_approve",
+    "expected_decision": "auto_resolve",
     "match_score": 1.0,
     "notes": "Perfect match - same amount, dates within 1 day, payer names match"
   },
@@ -11,7 +11,7 @@
     "case_id": "RECON_2024_002",
     "gl_id": "GL_20240114_002",
     "bank_id": "BANK_20240114_002",
-    "expected_decision": "auto_approve",
+    "expected_decision": "auto_resolve",
     "match_score": 1.0,
     "notes": "Perfect match - same amount, dates within 1 day, payer names match"
   },
@@ -19,7 +19,7 @@
     "case_id": "RECON_2024_003",
     "gl_id": "GL_20240128_003",
     "bank_id": "BANK_20240128_003",
-    "expected_decision": "auto_approve",
+    "expected_decision": "auto_resolve",
     "match_score": 1.0,
     "notes": "Perfect match - same amount, dates within 1 day, payer names match"
   },
@@ -27,7 +27,7 @@
     "case_id": "RECON_2024_004",
     "gl_id": "GL_20240129_004",
     "bank_id": "BANK_20240129_004",
-    "expected_decision": "auto_approve",
+    "expected_decision": "auto_resolve",
     "match_score": 1.0,
     "notes": "Perfect match - same amount, dates within 1 day, payer names match"
   },
@@ -35,7 +35,7 @@
     "case_id": "RECON_2024_005",
     "gl_id": "GL_20240205_005",
     "bank_id": "BANK_20240205_005",
-    "expected_decision": "auto_approve",
+    "expected_decision": "auto_resolve",
     "match_score": 1.0,
     "notes": "Perfect match - same amount, dates within 1 day, payer names match"
   },
@@ -43,7 +43,7 @@
     "case_id": "RECON_2024_006",
     "gl_id": "GL_20240215_006",
     "bank_id": "BANK_20240216_006",
-    "expected_decision": "auto_approve",
+    "expected_decision": "auto_resolve",
     "match_score": 1.0,
     "notes": "Perfect match - same amount, dates within 1 day, payer names match"
   },
@@ -51,7 +51,7 @@
     "case_id": "RECON_2024_007",
     "gl_id": "GL_20240111_007",
     "bank_id": "BANK_20240112_007",
-    "expected_decision": "auto_approve",
+    "expected_decision": "auto_resolve",
     "match_score": 1.0,
     "notes": "Perfect match - same amount, dates within 1 day, payer names match"
   },
@@ -59,7 +59,7 @@
     "case_id": "RECON_2024_008",
     "gl_id": "GL_20240106_008",
     "bank_id": "BANK_20240106_008",
-    "expected_decision": "auto_approve",
+    "expected_decision": "auto_resolve",
     "match_score": 1.0,
     "notes": "Perfect match - same amount, dates within 1 day, payer names match"
   },
@@ -67,7 +67,7 @@
     "case_id": "RECON_2024_009",
     "gl_id": "GL_20240228_009",
     "bank_id": "BANK_20240229_009",
-    "expected_decision": "human_review",
+    "expected_decision": "hitl_review",
     "match_score": 0.75,
     "notes": "Close match with payer_typo - requires human review"
   },
@@ -75,7 +75,7 @@
     "case_id": "RECON_2024_010",
     "gl_id": "GL_20240318_010",
     "bank_id": "BANK_20240319_010",
-    "expected_decision": "human_review",
+    "expected_decision": "hitl_review",
     "match_score": 0.75,
     "notes": "Close match with payer_typo - requires human review"
   },
@@ -83,7 +83,7 @@
     "case_id": "RECON_2024_011",
     "gl_id": "GL_20240322_011",
     "bank_id": "BANK_20240324_011",
-    "expected_decision": "human_review",
+    "expected_decision": "hitl_review",
     "match_score": 0.75,
     "notes": "Close match with date_difference - requires human review"
   },
@@ -91,7 +91,7 @@
     "case_id": "RECON_2024_012",
     "gl_id": "GL_20240221_012",
     "bank_id": "BANK_20240222_012",
-    "expected_decision": "human_review",
+    "expected_decision": "hitl_review",
     "match_score": 0.75,
     "notes": "Close match with amount_cents - requires human review"
   },
@@ -99,7 +99,7 @@
     "case_id": "RECON_2024_013",
     "gl_id": "GL_20240323_013",
     "bank_id": "BANK_20240324_013",
-    "expected_decision": "human_review",
+    "expected_decision": "hitl_review",
     "match_score": 0.75,
     "notes": "Close match with payer_typo - requires human review"
   },
@@ -107,7 +107,7 @@
     "case_id": "RECON_2024_014",
     "gl_id": "GL_20240315_014",
     "bank_id": "BANK_20240316_014",
-    "expected_decision": "human_review",
+    "expected_decision": "hitl_review",
     "match_score": 0.75,
     "notes": "Close match with amount_cents - requires human review"
   },
@@ -115,7 +115,7 @@
     "case_id": "RECON_2024_015",
     "gl_id": "GL_20240112_015",
     "bank_id": "BANK_20240117_015",
-    "expected_decision": "auto_reject",
+    "expected_decision": "reject",
     "match_score": 0.2,
     "notes": "Mismatch - different payers, amounts, and dates"
   },
@@ -123,7 +123,7 @@
     "case_id": "RECON_2024_016",
     "gl_id": "GL_20240317_016",
     "bank_id": "BANK_20240327_016",
-    "expected_decision": "auto_reject",
+    "expected_decision": "reject",
     "match_score": 0.2,
     "notes": "Mismatch - different payers, amounts, and dates"
   },
@@ -131,7 +131,7 @@
     "case_id": "RECON_2024_017",
     "gl_id": "GL_20240323_017",
     "bank_id": "BANK_20240401_017",
-    "expected_decision": "auto_reject",
+    "expected_decision": "reject",
     "match_score": 0.2,
     "notes": "Mismatch - different payers, amounts, and dates"
   },
@@ -139,7 +139,7 @@
     "case_id": "RECON_2024_018",
     "gl_id": "GL_20240114_018",
     "bank_id": "BANK_20240123_018",
-    "expected_decision": "auto_reject",
+    "expected_decision": "reject",
     "match_score": 0.2,
     "notes": "Mismatch - different payers, amounts, and dates"
   },
@@ -147,7 +147,7 @@
     "case_id": "RECON_2024_019",
     "gl_id": "GL_20240303_019",
     "bank_id": "BANK_20240304_019",
-    "expected_decision": "human_review",
+    "expected_decision": "hitl_review",
     "match_score": 0.6,
     "notes": "Potential duplicate - requires investigation"
   },

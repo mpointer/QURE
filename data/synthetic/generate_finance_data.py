@@ -143,7 +143,7 @@ class FinanceDataGenerator:
             "case_id": f"RECON_2024_{case_id:03d}",
             "gl_id": gl["id"],
             "bank_id": bank["id"],
-            "expected_decision": "auto_approve",
+            "expected_decision": "auto_resolve",
             "match_score": 1.0,
             "notes": "Perfect match - same amount, dates within 1 day, payer names match",
         }
@@ -215,7 +215,7 @@ class FinanceDataGenerator:
             "case_id": f"RECON_2024_{case_id:03d}",
             "gl_id": gl["id"],
             "bank_id": bank["id"],
-            "expected_decision": "human_review",
+            "expected_decision": "hitl_review",
             "match_score": 0.75,
             "notes": f"Close match with {variation_type} - requires human review",
         }
@@ -262,7 +262,7 @@ class FinanceDataGenerator:
             "case_id": f"RECON_2024_{case_id:03d}",
             "gl_id": gl["id"],
             "bank_id": bank["id"],
-            "expected_decision": "auto_reject",
+            "expected_decision": "reject",
             "match_score": 0.2,
             "notes": "Mismatch - different payers, amounts, and dates",
         }
@@ -316,7 +316,7 @@ class FinanceDataGenerator:
             match_score = 0.5
             notes = "High-value transaction missing SWIFT reference - SOX compliance issue"
         elif edge_case_type == "currency_mismatch":
-            expected_decision = "auto_reject"
+            expected_decision = "reject"
             match_score = 0.0
             notes = "Currency mismatch - cannot reconcile USD vs EUR"
         elif edge_case_type == "compliance_flag":
@@ -326,7 +326,7 @@ class FinanceDataGenerator:
             match_score = 0.7
             notes = "High-value transaction requires manager approval"
         else:
-            expected_decision = "human_review"
+            expected_decision = "hitl_review"
             match_score = 0.6
             notes = "Potential duplicate - requires investigation"
 

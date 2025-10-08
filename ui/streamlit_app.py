@@ -78,16 +78,16 @@ def show_dashboard(gl_transactions, bank_transactions, expected_matches):
         st.metric("Total Cases", len(expected_matches))
 
     with col2:
-        auto_approve = sum(1 for m in expected_matches if m["expected_decision"] == "auto_approve")
-        st.metric("Auto Approved", auto_approve, f"{auto_approve/len(expected_matches)*100:.0f}%")
+        auto_resolve = sum(1 for m in expected_matches if m["expected_decision"] == "auto_resolve")
+        st.metric("Auto Resolved", auto_resolve, f"{auto_resolve/len(expected_matches)*100:.0f}%")
 
     with col3:
-        human_review = sum(1 for m in expected_matches if m["expected_decision"] == "human_review")
-        st.metric("Human Review", human_review, f"{human_review/len(expected_matches)*100:.0f}%")
+        hitl_review = sum(1 for m in expected_matches if m["expected_decision"] == "hitl_review")
+        st.metric("HITL Review", hitl_review, f"{hitl_review/len(expected_matches)*100:.0f}%")
 
     with col4:
-        auto_reject = sum(1 for m in expected_matches if m["expected_decision"] == "auto_reject")
-        st.metric("Auto Rejected", auto_reject, f"{auto_reject/len(expected_matches)*100:.0f}%")
+        rejected = sum(1 for m in expected_matches if m["expected_decision"] == "reject")
+        st.metric("Rejected", rejected, f"{rejected/len(expected_matches)*100:.0f}%")
 
     # Distribution chart
     st.subheader("Decision Distribution")
