@@ -1,0 +1,222 @@
+[
+  {
+    "id": "BANK_20240322_001",
+    "date": "2024-03-22",
+    "amount": 1348.04,
+    "currency": "USD",
+    "payer": "TECHSTART INC",
+    "memo": "Payment for invoice ORDER-2024-0001",
+    "swift_ref": null,
+    "transaction_type": "ACH",
+    "bank_account": "4657****3286"
+  },
+  {
+    "id": "BANK_20240114_002",
+    "date": "2024-01-14",
+    "amount": 4438.25,
+    "currency": "USD",
+    "payer": "ENERGY DYNAMICS CORP",
+    "memo": "Payment for invoice REF-2024-0002",
+    "swift_ref": null,
+    "transaction_type": "ACH",
+    "bank_account": "1488****2535"
+  },
+  {
+    "id": "BANK_20240128_003",
+    "date": "2024-01-28",
+    "amount": 25317.23,
+    "currency": "USD",
+    "payer": "MEDICARE SYSTEMS",
+    "memo": "Payment for invoice INV-2024-0003",
+    "swift_ref": "SWIFT850800",
+    "transaction_type": "WIRE",
+    "bank_account": "9928****7873"
+  },
+  {
+    "id": "BANK_20240129_004",
+    "date": "2024-01-29",
+    "amount": 29504.36,
+    "currency": "USD",
+    "payer": "CONSULTING PARTNERS",
+    "memo": "Payment for invoice INV-2024-0004",
+    "swift_ref": "SWIFT832052",
+    "transaction_type": "WIRE",
+    "bank_account": "7924****6574"
+  },
+  {
+    "id": "BANK_20240205_005",
+    "date": "2024-02-05",
+    "amount": 10844.16,
+    "currency": "USD",
+    "payer": "GLOBAL LOGISTICS LLC",
+    "memo": "Payment for invoice ORDER-2024-0005",
+    "swift_ref": "SWIFT197251",
+    "transaction_type": "WIRE",
+    "bank_account": "7224****2584"
+  },
+  {
+    "id": "BANK_20240216_006",
+    "date": "2024-02-16",
+    "amount": 30225.93,
+    "currency": "USD",
+    "payer": "FINANCE SOLUTIONS LTD",
+    "memo": "Payment for invoice INV-2024-0006",
+    "swift_ref": "SWIFT662275",
+    "transaction_type": "WIRE",
+    "bank_account": "3045****7201"
+  },
+  {
+    "id": "BANK_20240112_007",
+    "date": "2024-01-12",
+    "amount": 14729.6,
+    "currency": "USD",
+    "payer": "ENERGY DYNAMICS CORP",
+    "memo": "Payment for invoice BILL-2024-0007",
+    "swift_ref": "SWIFT705397",
+    "transaction_type": "WIRE",
+    "bank_account": "4150****2139"
+  },
+  {
+    "id": "BANK_20240106_008",
+    "date": "2024-01-06",
+    "amount": 38676.11,
+    "currency": "USD",
+    "payer": "MEDICARE SYSTEMS",
+    "memo": "Payment for invoice INV-2024-0008",
+    "swift_ref": "SWIFT205907",
+    "transaction_type": "WIRE",
+    "bank_account": "7227****5554"
+  },
+  {
+    "id": "BANK_20240229_009",
+    "date": "2024-02-29",
+    "amount": 8216.44,
+    "currency": "USD",
+    "payer": "Finance Solutions Ltd",
+    "memo": "Payment for invoice ORDER-2024-0009",
+    "swift_ref": null,
+    "transaction_type": "ACH",
+    "bank_account": "5374****2169"
+  },
+  {
+    "id": "BANK_20240319_010",
+    "date": "2024-03-19",
+    "amount": 26753.58,
+    "currency": "USD",
+    "payer": "Global Logistics LLC",
+    "memo": "Payment for invoice PO-2024-0010",
+    "swift_ref": "SWIFT584714",
+    "transaction_type": "WIRE",
+    "bank_account": "7216****5422"
+  },
+  {
+    "id": "BANK_20240324_011",
+    "date": "2024-03-24",
+    "amount": 11058.8,
+    "currency": "USD",
+    "payer": "ENERGY DYNAMICS CORP",
+    "memo": "Payment for invoice ORDER-2024-0011",
+    "swift_ref": "SWIFT961722",
+    "transaction_type": "WIRE",
+    "bank_account": "1525****6168"
+  },
+  {
+    "id": "BANK_20240222_012",
+    "date": "2024-02-22",
+    "amount": 3402.82,
+    "currency": "USD",
+    "payer": "RETAIL GIANTS CO",
+    "memo": "Payment for invoice BILL-2024-0012",
+    "swift_ref": null,
+    "transaction_type": "ACH",
+    "bank_account": "9179****7482"
+  },
+  {
+    "id": "BANK_20240324_013",
+    "date": "2024-03-24",
+    "amount": 7229.29,
+    "currency": "USD",
+    "payer": "Consulting Partners",
+    "memo": "Payment for invoice PO-2024-0013",
+    "swift_ref": null,
+    "transaction_type": "ACH",
+    "bank_account": "9830****5304"
+  },
+  {
+    "id": "BANK_20240316_014",
+    "date": "2024-03-16",
+    "amount": 44901.37,
+    "currency": "USD",
+    "payer": "MANUFACTURING PRO INC",
+    "memo": "Payment for invoice REF-2024-0014",
+    "swift_ref": "SWIFT245051",
+    "transaction_type": "WIRE",
+    "bank_account": "9348****9085"
+  },
+  {
+    "id": "BANK_20240117_015",
+    "date": "2024-01-17",
+    "amount": 8083.1,
+    "currency": "USD",
+    "payer": "GLOBAL LOGISTICS LLC",
+    "memo": "Payment for invoice BILL-2024-0015B",
+    "swift_ref": null,
+    "transaction_type": "ACH",
+    "bank_account": "7304****7252"
+  },
+  {
+    "id": "BANK_20240327_016",
+    "date": "2024-03-27",
+    "amount": 27705.97,
+    "currency": "USD",
+    "payer": "FOOD SERVICES GROUP",
+    "memo": "Payment for invoice INV-2024-0016B",
+    "swift_ref": null,
+    "transaction_type": "ACH",
+    "bank_account": "9797****5371"
+  },
+  {
+    "id": "BANK_20240401_017",
+    "date": "2024-04-01",
+    "amount": 7992.07,
+    "currency": "USD",
+    "payer": "TECHSTART INC",
+    "memo": "Payment for invoice ORDER-2024-0017B",
+    "swift_ref": null,
+    "transaction_type": "ACH",
+    "bank_account": "3927****9317"
+  },
+  {
+    "id": "BANK_20240123_018",
+    "date": "2024-01-23",
+    "amount": 7726.68,
+    "currency": "USD",
+    "payer": "FOOD SERVICES GROUP",
+    "memo": "Payment for invoice BILL-2024-0018B",
+    "swift_ref": null,
+    "transaction_type": "ACH",
+    "bank_account": "1009****6310"
+  },
+  {
+    "id": "BANK_20240304_019",
+    "date": "2024-03-04",
+    "amount": 11275.59,
+    "currency": "USD",
+    "payer": "ACME CORP",
+    "memo": "Payment for invoice ORDER-2024-0019",
+    "swift_ref": "SWIFT351083",
+    "transaction_type": "WIRE",
+    "bank_account": "1949****4946"
+  },
+  {
+    "id": "BANK_20240314_020",
+    "date": "2024-03-14",
+    "amount": 15000.0,
+    "currency": "USD",
+    "payer": "TECHSTART INC",
+    "memo": "Payment for invoice REF-2024-0020",
+    "swift_ref": null,
+    "transaction_type": "ACH",
+    "bank_account": "9727****3060"
+  }
+]
