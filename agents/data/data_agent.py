@@ -62,17 +62,29 @@ class DataAgent:
         self.use_graph = use_graph
         self.use_features = use_features
 
-        # Initialize substrate components
-        if self.use_embeddings:
-            self.vector_store = get_vector_store()
+        # Initialize substrate components (optional)
+        if SUBSTRATE_AVAILABLE:
+            if self.use_embeddings:
+                self.vector_store = get_vector_store()
+            else:
+                self.vector_store = None
 
-        if self.use_graph:
-            self.graph_store = get_graph_store()
+            if self.use_graph:
+                self.graph_store = get_graph_store()
+            else:
+                self.graph_store = None
 
-        if self.use_features:
-            self.feature_store = get_feature_store()
+            if self.use_features:
+                self.feature_store = get_feature_store()
+            else:
+                self.feature_store = None
 
-        self.evidence_tracker = get_evidence_tracker()
+            self.evidence_tracker = get_evidence_tracker()
+        else:
+            self.vector_store = None
+            self.graph_store = None
+            self.feature_store = None
+            self.evidence_tracker = None
 
         # Lazy load NLP models
         self.nlp = None
