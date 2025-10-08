@@ -56,7 +56,6 @@ psycopg2-binary = "^2.9.0"
 
 # String matching
 rapidfuzz = "^3.5.0"
-jellyfish = "^1.0.0"
 
 # Document parsing
 PyPDF2 = "^3.0.0"
