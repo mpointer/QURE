@@ -1,0 +1,162 @@
+[
+  {
+    "case_id": "SUBRO_2024_001",
+    "claim_id": "CLM_20240322_001",
+    "evidence_id": "EVD_20240322_001",
+    "expected_decision": "auto_resolve",
+    "match_score": 0.95,
+    "notes": "Clear liability with strong evidence - proceed with subrogation recovery"
+  },
+  {
+    "case_id": "SUBRO_2024_002",
+    "claim_id": "CLM_20240327_002",
+    "evidence_id": "EVD_20240327_002",
+    "expected_decision": "auto_resolve",
+    "match_score": 0.95,
+    "notes": "Clear liability with strong evidence - proceed with subrogation recovery"
+  },
+  {
+    "case_id": "SUBRO_2024_003",
+    "claim_id": "CLM_20240128_003",
+    "evidence_id": "EVD_20240128_003",
+    "expected_decision": "auto_resolve",
+    "match_score": 0.95,
+    "notes": "Clear liability with strong evidence - proceed with subrogation recovery"
+  },
+  {
+    "case_id": "SUBRO_2024_004",
+    "claim_id": "CLM_20240223_004",
+    "evidence_id": "EVD_20240223_004",
+    "expected_decision": "auto_resolve",
+    "match_score": 0.95,
+    "notes": "Clear liability with strong evidence - proceed with subrogation recovery"
+  },
+  {
+    "case_id": "SUBRO_2024_005",
+    "claim_id": "CLM_20240213_005",
+    "evidence_id": "EVD_20240213_005",
+    "expected_decision": "auto_resolve",
+    "match_score": 0.95,
+    "notes": "Clear liability with strong evidence - proceed with subrogation recovery"
+  },
+  {
+    "case_id": "SUBRO_2024_006",
+    "claim_id": "CLM_20240214_006",
+    "evidence_id": "EVD_20240214_006",
+    "expected_decision": "auto_resolve",
+    "match_score": 0.95,
+    "notes": "Clear liability with strong evidence - proceed with subrogation recovery"
+  },
+  {
+    "case_id": "SUBRO_2024_007",
+    "claim_id": "CLM_20240311_007",
+    "evidence_id": "EVD_20240311_007",
+    "expected_decision": "auto_resolve",
+    "match_score": 0.95,
+    "notes": "Clear liability with strong evidence - proceed with subrogation recovery"
+  },
+  {
+    "case_id": "SUBRO_2024_008",
+    "claim_id": "CLM_20240106_008",
+    "evidence_id": "EVD_20240106_008",
+    "expected_decision": "hitl_review",
+    "match_score": 0.65,
+    "notes": "Requires human review - conflicting evidence"
+  },
+  {
+    "case_id": "SUBRO_2024_009",
+    "claim_id": "CLM_20240121_009",
+    "evidence_id": "EVD_20240121_009",
+    "expected_decision": "hitl_review",
+    "match_score": 0.65,
+    "notes": "Requires human review - conflicting evidence"
+  },
+  {
+    "case_id": "SUBRO_2024_010",
+    "claim_id": "CLM_20240204_010",
+    "evidence_id": "EVD_20240204_010",
+    "expected_decision": "hitl_review",
+    "match_score": 0.65,
+    "notes": "Requires human review - disputed facts"
+  },
+  {
+    "case_id": "SUBRO_2024_011",
+    "claim_id": "CLM_20240204_011",
+    "evidence_id": "EVD_20240204_011",
+    "expected_decision": "hitl_review",
+    "match_score": 0.65,
+    "notes": "Requires human review - conflicting evidence"
+  },
+  {
+    "case_id": "SUBRO_2024_012",
+    "claim_id": "CLM_20240201_012",
+    "evidence_id": "EVD_20240201_012",
+    "expected_decision": "hitl_review",
+    "match_score": 0.65,
+    "notes": "Requires human review - conflicting evidence"
+  },
+  {
+    "case_id": "SUBRO_2024_013",
+    "claim_id": "CLM_20240306_013",
+    "evidence_id": "EVD_20240306_013",
+    "expected_decision": "hitl_review",
+    "match_score": 0.65,
+    "notes": "Requires human review - partial liability"
+  },
+  {
+    "case_id": "SUBRO_2024_014",
+    "claim_id": "CLM_20240218_014",
+    "evidence_id": "EVD_20240218_014",
+    "expected_decision": "hitl_review",
+    "match_score": 0.65,
+    "notes": "Requires human review - conflicting evidence"
+  },
+  {
+    "case_id": "SUBRO_2024_015",
+    "claim_id": "CLM_20240115_015",
+    "evidence_id": "EVD_20240115_015",
+    "expected_decision": "hitl_review",
+    "match_score": 0.65,
+    "notes": "Requires human review - comparative negligence"
+  },
+  {
+    "case_id": "SUBRO_2024_016",
+    "claim_id": "CLM_20240322_016",
+    "evidence_id": "EVD_20240322_016",
+    "expected_decision": "request_evidence",
+    "match_score": 0.45,
+    "notes": "Insufficient evidence - request witness statements"
+  },
+  {
+    "case_id": "SUBRO_2024_017",
+    "claim_id": "CLM_20240308_017",
+    "evidence_id": "EVD_20240308_017",
+    "expected_decision": "request_evidence",
+    "match_score": 0.45,
+    "notes": "Insufficient evidence - request expert opinion"
+  },
+  {
+    "case_id": "SUBRO_2024_018",
+    "claim_id": "CLM_20240131_018",
+    "evidence_id": "EVD_20240131_018",
+    "expected_decision": "request_evidence",
+    "match_score": 0.45,
+    "notes": "Insufficient evidence - request police report"
+  },
+  {
+    "case_id": "SUBRO_2024_019",
+    "claim_id": "CLM_20240117_019",
+    "evidence_id": "EVD_20240117_019",
+    "expected_decision": "reject",
+    "match_score": 0.15,
+    "notes": "Subrogation not viable - insured at fault"
+  },
+  {
+    "case_id": "SUBRO_2024_020",
+    "claim_id": "CLM_20240224_020",
+    "evidence_id": "EVD_20240224_020",
+    "expected_decision": "reject",
+    "match_score": 0.15,
+    "notes": "Subrogation not viable - insured at fault"
+  }
+]

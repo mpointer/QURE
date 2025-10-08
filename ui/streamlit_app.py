@@ -14,6 +14,16 @@ import streamlit as st
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 
+def get_vertical_id_fields(vertical):
+    """Get vertical-specific ID field names"""
+    id_fields = {
+        "Finance": ("gl_id", "bank_id"),
+        "Healthcare": ("pa_id", "clinical_id"),
+        "Insurance": ("claim_id", "evidence_id"),
+    }
+    return id_fields.get(vertical, ("gl_id", "bank_id"))
+
+
 def get_vertical_labels(vertical):
     """Get vertical-specific field labels and terminology"""
     labels = {
@@ -39,6 +49,17 @@ def get_vertical_labels(vertical):
             "entity_field": "patient_name",
             "memo_field": "procedure_name",
         },
+        "Insurance": {
+            "data1_label": "Claim Submission",
+            "data2_label": "Recovery Evidence",
+            "case_label": "Subrogation Recovery",
+            "id1_field": "id",
+            "id2_field": "id",
+            "amount_field": "paid_amount",
+            "date_field": "submission_date",
+            "entity_field": "insured_name",
+            "memo_field": "claim_type",
+        },
     }
     return labels.get(vertical, labels["Finance"])
 
@@ -58,9 +79,9 @@ def load_test_data(vertical="Finance"):
             "keys": ["requests", "clinical", "matches"]
         },
         "Insurance": {
-            "dir": "finance",  # Fallback to finance for now
-            "files": ["gl_transactions.json", "bank_transactions.json", "expected_matches.json"],
-            "keys": ["gl", "bank", "matches"]
+            "dir": "insurance",
+            "files": ["claim_submissions.json", "recovery_evidence.json", "expected_matches.json"],
+            "keys": ["claims", "evidence", "matches"]
         },
         "Retail": {
             "dir": "finance",  # Fallback to finance for now
@@ -118,8 +139,16 @@ def main():
         layout="wide",
     )
 
-    st.title("🔍 QURE - Exception Resolution System")
-    st.markdown("**Multi-Agent AI for Back-Office Exception Resolution**")
+    # Display QURE logo
+    logo_path = Path(__file__).resolve().parent.parent / "Qure_logo.png"
+    if logo_path.exists():
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            st.image(str(logo_path), width=400)
+
+    st.title("QURE - Exception Resolution System")
+    st.markdown("**Multi-QRU AI for Back-Office Exception Resolution**")
+    st.caption("_Powered by QURE Resolution Units (QRUs)_")
 
     # Sidebar - Use Case Navigator
     st.sidebar.title("🎯 Use Case Navigator")
@@ -164,7 +193,7 @@ def main():
     st.sidebar.title("Navigation")
     page = st.sidebar.radio(
         "Select Page",
-        ["Dashboard", "Use Cases", "Live Processing", "Case List", "Case Details", "Audit Trail", "Admin Panel", "Agent Performance", "About"]
+        ["Dashboard", "Use Cases", "Live Processing", "Case List", "Case Details", "Audit Trail", "Admin Panel", "QRU Performance", "About"]
     )
 
     # Load data based on selected vertical
@@ -194,7 +223,7 @@ def main():
         show_audit_trail(gl_transactions, bank_transactions, expected_matches)
     elif page == "Admin Panel":
         show_admin_panel()
-    elif page == "Agent Performance":
+    elif page == "QRU Performance":
         show_agent_performance()
     elif page == "About":
         show_about()
@@ -286,16 +315,15 @@ def show_dashboard(gl_transactions, bank_transactions, expected_matches):
             col1, col2 = st.columns(2)
 
             with col1:
-                # Use pa_id for Healthcare, gl_id for Finance
-                id_field = "pa_id" if vertical == "Healthcare" else "gl_id"
+                # Get ID fields for this vertical
+                id_field, _ = get_vertical_id_fields(vertical)
                 data1_id = match.get(id_field, match.get("gl_id"))
                 data1 = next((g for g in gl_transactions if g.get("id") == data1_id), {})
                 st.markdown(f"**{labels['data1_label']}**")
                 st.json(data1)
 
             with col2:
-                # Use clinical_id for Healthcare, bank_id for Finance
-                id_field2 = "clinical_id" if vertical == "Healthcare" else "bank_id"
+                _, id_field2 = get_vertical_id_fields(vertical)
                 data2_id = match.get(id_field2, match.get("bank_id"))
                 data2 = next((b for b in bank_transactions if b.get("id") == data2_id), {})
                 st.markdown(f"**{labels['data2_label']}**")
@@ -596,12 +624,9 @@ def show_case_list(gl_transactions, bank_transactions, expected_matches):
 
     for match in filtered_matches:
         # Get data based on vertical
-        if vertical == "Healthcare":
-            data1_id = match.get("pa_id")
-            data2_id = match.get("clinical_id")
-        else:
-            data1_id = match.get("gl_id")
-            data2_id = match.get("bank_id")
+        id_field, id_field2 = get_vertical_id_fields(vertical)
+        data1_id = match.get(id_field)
+        data2_id = match.get(id_field2)
 
         gl = next((g for g in gl_transactions if g.get("id") == data1_id), {})
         bank = next((b for b in bank_transactions if b.get("id") == data2_id), {})
@@ -655,12 +680,9 @@ def show_case_details(gl_transactions, bank_transactions, expected_matches):
     match = next(m for m in expected_matches if m["case_id"] == selected_case_id)
 
     # Get data based on vertical
-    if vertical == "Healthcare":
-        data1_id = match.get("pa_id")
-        data2_id = match.get("clinical_id")
-    else:
-        data1_id = match.get("gl_id")
-        data2_id = match.get("bank_id")
+    id_field, id_field2 = get_vertical_id_fields(vertical)
+    data1_id = match.get(id_field)
+    data2_id = match.get(id_field2)
 
     gl = next((g for g in gl_transactions if g.get("id") == data1_id), {})
     bank = next((b for b in bank_transactions if b.get("id") == data2_id), {})
@@ -704,8 +726,8 @@ def show_case_details(gl_transactions, bank_transactions, expected_matches):
         st.markdown(f"### {labels['data2_label']}")
         st.json(bank)
 
-    # Agent Scores (simulated)
-    st.subheader("Agent Scores")
+    # QRU Scores (simulated)
+    st.subheader("QRU Scores")
 
     agent_scores = {
         "Rules Engine": 0.90 if match['match_score'] > 0.8 else 0.60,
@@ -742,28 +764,29 @@ def show_case_details(gl_transactions, bank_transactions, expected_matches):
 
 def show_agent_performance():
     """Show agent performance metrics"""
-    st.header("Agent Performance")
+    st.header("QRU Performance")
+    st.caption("_QURE Resolution Units (QRUs) - Specialized AI components for exception resolution_")
 
     st.markdown("""
-    ### Multi-Agent Architecture
+    ### Multi-QRU Architecture
 
-    QURE uses 11 specialized agents working in concert:
+    QURE uses 11 specialized QRUs (QURE Resolution Units) working in concert:
 
-    1. **Retriever Agent** - Data ingestion
-    2. **Data Agent (UDI)** - Entity extraction & normalization
-    3. **Rules Engine** - Business logic & compliance
-    4. **Algorithm Agent** - Deterministic computations
-    5. **ML Model Agent** - Predictive scoring
-    6. **GenAI Reasoner** - LLM-powered analysis
-    7. **Assurance Agent** - Uncertainty quantification
-    8. **Policy Agent** - Decision fusion
-    9. **Action Agent** - Execution
-    10. **Orchestration Agent** - Workflow coordination
-    11. **Learning Agent** - Continuous improvement (coming soon)
+    1. **Retriever QRU** - Data ingestion
+    2. **Data QRU (UDI)** - Entity extraction & normalization
+    3. **Rules QRU** - Business logic & compliance
+    4. **Algorithm QRU** - Deterministic computations
+    5. **ML Model QRU** - Predictive scoring
+    6. **GenAI QRU** - LLM-powered analysis
+    7. **Assurance QRU** - Uncertainty quantification
+    8. **Policy QRU** - Decision fusion
+    9. **Action QRU** - Execution
+    10. **Orchestration QRU** - Workflow coordination
+    11. **Learning QRU** - Continuous improvement (coming soon)
     """)
 
     # Performance metrics (simulated)
-    st.subheader("Agent Accuracy")
+    st.subheader("QRU Accuracy")
 
     metrics = {
         "Rules Engine": 0.95,
@@ -802,7 +825,7 @@ def show_about():
 
     ### Overview
 
-    QURE is a multi-agent AI system designed to resolve back-office exceptions across multiple verticals:
+    QURE is a multi-QRU AI system designed to resolve back-office exceptions across multiple verticals:
 
     - **Finance**: GL-Bank reconciliation
     - **Insurance**: Subrogation recovery
@@ -868,13 +891,10 @@ def show_live_processing(gl_transactions, bank_transactions, expected_matches):
     with col1:
         # Build case options based on vertical
         case_options = []
+        id_field, id_field2 = get_vertical_id_fields(vertical)
         for m in expected_matches:
-            if vertical == "Healthcare":
-                id1 = m.get('pa_id', m.get('gl_id', 'N/A'))
-                id2 = m.get('clinical_id', m.get('bank_id', 'N/A'))
-            else:
-                id1 = m.get('gl_id', 'N/A')
-                id2 = m.get('bank_id', 'N/A')
+            id1 = m.get(id_field, 'N/A')
+            id2 = m.get(id_field2, 'N/A')
             case_options.append(f"{m['case_id']} - {id1} ↔ {id2}")
 
         selected_case_idx = st.selectbox("Select Case to Process", range(len(case_options)), format_func=lambda i: case_options[i])
@@ -884,19 +904,19 @@ def show_live_processing(gl_transactions, bank_transactions, expected_matches):
         process_button = st.button("▶️ Process Case", type="primary", use_container_width=True)
         batch_button = st.button("⚡ Batch Process All", use_container_width=True)
 
-    # Agent workflow visualization
-    st.subheader("Agent Execution Flow")
+    # QRU workflow visualization
+    st.subheader("QRU Execution Flow")
 
     agents = [
-        {"name": "Retriever", "icon": "📥", "status": "pending"},
-        {"name": "Data", "icon": "🔍", "status": "pending"},
-        {"name": "Rules", "icon": "📋", "status": "pending"},
-        {"name": "Algorithm", "icon": "🧮", "status": "pending"},
-        {"name": "ML Model", "icon": "🤖", "status": "pending"},
-        {"name": "GenAI", "icon": "🧠", "status": "pending"},
-        {"name": "Assurance", "icon": "✅", "status": "pending"},
-        {"name": "Policy", "icon": "⚖️", "status": "pending"},
-        {"name": "Action", "icon": "📤", "status": "pending"},
+        {"name": "Retriever QRU", "icon": "📥", "status": "pending"},
+        {"name": "Data QRU", "icon": "🔍", "status": "pending"},
+        {"name": "Rules QRU", "icon": "📋", "status": "pending"},
+        {"name": "Algorithm QRU", "icon": "🧮", "status": "pending"},
+        {"name": "ML Model QRU", "icon": "🤖", "status": "pending"},
+        {"name": "GenAI QRU", "icon": "🧠", "status": "pending"},
+        {"name": "Assurance QRU", "icon": "✅", "status": "pending"},
+        {"name": "Policy QRU", "icon": "⚖️", "status": "pending"},
+        {"name": "Action QRU", "icon": "📤", "status": "pending"},
     ]
 
     # Batch processing logic
@@ -961,12 +981,9 @@ def show_live_processing(gl_transactions, bank_transactions, expected_matches):
 
     elif process_button:
         # Get data1 and data2 for this case (vertical-aware)
-        if vertical == "Healthcare":
-            data1_id = selected_match.get("pa_id")
-            data2_id = selected_match.get("clinical_id")
-        else:
-            data1_id = selected_match.get("gl_id")
-            data2_id = selected_match.get("bank_id")
+        id_field, id_field2 = get_vertical_id_fields(vertical)
+        data1_id = selected_match.get(id_field)
+        data2_id = selected_match.get(id_field2)
 
         gl = next((g for g in gl_transactions if g.get("id") == data1_id), {})
         bank = next((b for b in bank_transactions if b.get("id") == data2_id), {})
@@ -1078,8 +1095,8 @@ def show_live_processing(gl_transactions, bank_transactions, expected_matches):
                 st.metric("Decision", decision)
                 st.metric("ML Confidence", f"{agent_results['ML Model']['confidence']:.0%}")
 
-            # Show agent scores in a chart
-            st.subheader("Agent Scores Breakdown")
+            # Show QRU scores in a chart
+            st.subheader("QRU Scores Breakdown")
 
             fig = go.Figure()
 
@@ -1227,11 +1244,11 @@ def show_admin_panel():
     st.header("⚙️ Admin Panel")
     st.markdown("Configure system parameters and agent settings")
 
-    tab1, tab2, tab3, tab4 = st.tabs(["Agent Configuration", "Policy Thresholds", "Rule Sets", "System Settings"])
+    tab1, tab2, tab3, tab4 = st.tabs(["QRU Configuration", "Policy Thresholds", "Rule Sets", "System Settings"])
 
     with tab1:
-        st.subheader("Agent Signal Weights")
-        st.markdown("Adjust the weight of each agent in the fusion score")
+        st.subheader("QRU Signal Weights")
+        st.markdown("Adjust the weight of each QRU in the fusion score")
 
         col1, col2 = st.columns(2)
 
@@ -1251,7 +1268,7 @@ def show_admin_panel():
         else:
             st.success(f"✅ Weights sum to {total_weight:.2f}")
 
-        if st.button("💾 Save Agent Weights"):
+        if st.button("💾 Save QRU Weights"):
             config = {
                 "signal_weights": {
                     "rules": rules_weight,
