@@ -49,11 +49,50 @@ def main():
     st.title("🔍 QURE - Exception Resolution System")
     st.markdown("**Multi-Agent AI for Back-Office Exception Resolution**")
 
-    # Sidebar
+    # Sidebar - Use Case Navigator
+    st.sidebar.title("🎯 Use Case Navigator")
+
+    # Use session state to persist vertical selection
+    if 'vertical' not in st.session_state:
+        st.session_state.vertical = "Finance"
+
+    vertical_icons = {
+        "Finance": "💰",
+        "Insurance": "🛡️",
+        "Healthcare": "🏥",
+        "Retail": "🛒",
+        "Manufacturing": "🏭"
+    }
+
+    vertical = st.sidebar.selectbox(
+        "Select Vertical",
+        options=list(vertical_icons.keys()),
+        index=list(vertical_icons.keys()).index(st.session_state.vertical),
+        format_func=lambda x: f"{vertical_icons[x]} {x}"
+    )
+
+    st.session_state.vertical = vertical
+
+    # Show vertical-specific info
+    st.sidebar.markdown("---")
+    st.sidebar.markdown(f"**Current Vertical:** {vertical_icons[vertical]} {vertical}")
+
+    vertical_descriptions = {
+        "Finance": "GL↔Bank Reconciliation, Invoice Matching, Payment Processing",
+        "Insurance": "Claims Adjudication, Policy Verification, Fraud Detection",
+        "Healthcare": "Medical Coding, Claims Processing, Prior Authorization",
+        "Retail": "Order Reconciliation, Inventory Audits, Returns Processing",
+        "Manufacturing": "Quality Control, Supply Chain Exceptions, Compliance Checks"
+    }
+
+    st.sidebar.caption(vertical_descriptions[vertical])
+    st.sidebar.markdown("---")
+
+    # Navigation
     st.sidebar.title("Navigation")
     page = st.sidebar.radio(
         "Select Page",
-        ["Dashboard", "Live Processing", "Case List", "Case Details", "Agent Performance", "About"]
+        ["Dashboard", "Use Cases", "Live Processing", "Case List", "Case Details", "Audit Trail", "Admin Panel", "Agent Performance", "About"]
     )
 
     # Load data
@@ -66,12 +105,18 @@ def main():
 
     if page == "Dashboard":
         show_dashboard(gl_transactions, bank_transactions, expected_matches)
+    elif page == "Use Cases":
+        show_use_cases()
     elif page == "Live Processing":
         show_live_processing(gl_transactions, bank_transactions, expected_matches)
     elif page == "Case List":
         show_case_list(gl_transactions, bank_transactions, expected_matches)
     elif page == "Case Details":
         show_case_details(gl_transactions, bank_transactions, expected_matches)
+    elif page == "Audit Trail":
+        show_audit_trail(gl_transactions, bank_transactions, expected_matches)
+    elif page == "Admin Panel":
+        show_admin_panel()
     elif page == "Agent Performance":
         show_agent_performance()
     elif page == "About":
@@ -80,7 +125,21 @@ def main():
 
 def show_dashboard(gl_transactions, bank_transactions, expected_matches):
     """Show dashboard with summary statistics"""
-    st.header("Dashboard")
+    vertical = st.session_state.get('vertical', 'Finance')
+
+    vertical_icons = {
+        "Finance": "💰",
+        "Insurance": "🛡️",
+        "Healthcare": "🏥",
+        "Retail": "🛒",
+        "Manufacturing": "🏭"
+    }
+
+    st.header(f"{vertical_icons.get(vertical, '💰')} {vertical} Dashboard")
+
+    # Show vertical-specific banner
+    if vertical != "Finance":
+        st.info(f"ℹ️ Currently showing demo data for Finance vertical. {vertical} vertical data coming soon!")
 
     # Summary metrics
     col1, col2, col3, col4 = st.columns(4)
@@ -162,6 +221,246 @@ def show_dashboard(gl_transactions, bank_transactions, expected_matches):
 
             st.markdown(f"**Match Score:** {match['match_score']:.2%}")
             st.markdown(f"**Notes:** {match['notes']}")
+
+
+def show_use_cases():
+    """Show use cases for different verticals"""
+    st.header("🎯 Use Cases by Vertical")
+
+    vertical = st.session_state.get('vertical', 'Finance')
+
+    # Use case definitions
+    use_cases = {
+        "Finance": {
+            "icon": "💰",
+            "title": "Finance & Accounting",
+            "description": "Automated reconciliation and payment processing",
+            "examples": [
+                {
+                    "name": "GL↔Bank Reconciliation",
+                    "challenge": "Matching general ledger entries with bank transactions across thousands of daily transactions",
+                    "solution": "Multi-agent system combines fuzzy matching, date proximity algorithms, and GenAI reasoning to identify matches with 95%+ accuracy",
+                    "metrics": "40% auto-resolve rate, 60% reduction in processing time, 99.8% accuracy",
+                    "status": "✅ Demo Available"
+                },
+                {
+                    "name": "Invoice-to-Payment Matching",
+                    "challenge": "Reconciling vendor invoices with payment confirmations across multiple payment channels",
+                    "solution": "Rules engine validates invoice numbers, ML model scores payment likelihood, assurance agent detects anomalies",
+                    "metrics": "Target: 50% auto-resolve, <2% false positive rate",
+                    "status": "🔨 In Development"
+                },
+                {
+                    "name": "Three-Way Match (PO-Invoice-Receipt)",
+                    "challenge": "Matching purchase orders, invoices, and goods receipts with tolerance for pricing variances",
+                    "solution": "Algorithm agent computes matching scores across 3 documents, policy agent applies tolerance thresholds",
+                    "metrics": "Target: 65% auto-match, <1% variance threshold",
+                    "status": "📋 Planned"
+                }
+            ]
+        },
+        "Insurance": {
+            "icon": "🛡️",
+            "title": "Insurance Claims & Underwriting",
+            "description": "Intelligent claims adjudication and fraud detection",
+            "examples": [
+                {
+                    "name": "Subrogation Recovery",
+                    "challenge": "Identifying recovery opportunities from third-party liability claims",
+                    "solution": "GenAI analyzes claim narratives, rules engine checks policy coverage, ML model scores recovery likelihood",
+                    "metrics": "Target: 30% auto-identify, 20% increase in recovery",
+                    "status": "📋 Planned"
+                },
+                {
+                    "name": "Medical Claims Adjudication",
+                    "challenge": "Validating medical necessity and coding accuracy for submitted claims",
+                    "solution": "Rules validate CPT/ICD codes, GenAI reviews clinical notes, assurance agent flags inconsistencies",
+                    "metrics": "Target: 40% auto-approve, 95% coding accuracy",
+                    "status": "📋 Planned"
+                },
+                {
+                    "name": "Fraud Detection",
+                    "challenge": "Identifying suspicious claim patterns across large volumes",
+                    "solution": "Graph database maps relationships, ML model scores anomalies, GenAI explains suspicious patterns",
+                    "metrics": "Target: 80% fraud detection rate, <5% false positives",
+                    "status": "📋 Planned"
+                }
+            ]
+        },
+        "Healthcare": {
+            "icon": "🏥",
+            "title": "Healthcare Operations",
+            "description": "Clinical workflow automation and compliance",
+            "examples": [
+                {
+                    "name": "Prior Authorization",
+                    "challenge": "Reviewing prior auth requests against clinical guidelines and policy coverage",
+                    "solution": "Rules engine checks medical necessity criteria, GenAI analyzes clinical documentation, assurance validates evidence",
+                    "metrics": "Target: 35% auto-approve, 50% faster turnaround",
+                    "status": "📋 Planned"
+                },
+                {
+                    "name": "Medical Coding Validation",
+                    "challenge": "Ensuring accurate ICD-10/CPT coding from clinical documentation",
+                    "solution": "GenAI extracts diagnoses from notes, rules validate code combinations, ML suggests corrections",
+                    "metrics": "Target: 90% coding accuracy, 60% reduction in denials",
+                    "status": "📋 Planned"
+                },
+                {
+                    "name": "Claims Denial Management",
+                    "challenge": "Categorizing denial reasons and identifying appeal opportunities",
+                    "solution": "GenAI analyzes denial codes and remittance advice, rules prioritize appeals, action agent generates responses",
+                    "metrics": "Target: 40% overturn rate on appeals, 30% faster processing",
+                    "status": "📋 Planned"
+                }
+            ]
+        },
+        "Retail": {
+            "icon": "🛒",
+            "title": "Retail Operations",
+            "description": "Order management and inventory reconciliation",
+            "examples": [
+                {
+                    "name": "Order-to-Cash Reconciliation",
+                    "challenge": "Matching orders, shipments, and payments across channels",
+                    "solution": "Algorithm agent matches order IDs, ML handles partial shipments, policy routes exceptions",
+                    "metrics": "Target: 70% auto-match, 40% faster close",
+                    "status": "📋 Planned"
+                },
+                {
+                    "name": "Returns Authorization",
+                    "challenge": "Validating return requests against policy and fraud indicators",
+                    "solution": "Rules check return window and conditions, ML scores fraud risk, GenAI analyzes customer communication",
+                    "metrics": "Target: 50% auto-approve, 15% reduction in fraud",
+                    "status": "📋 Planned"
+                },
+                {
+                    "name": "Inventory Variance Resolution",
+                    "challenge": "Reconciling physical counts with system inventory across locations",
+                    "solution": "Algorithm computes variances, ML identifies patterns, GenAI suggests root causes",
+                    "metrics": "Target: 60% variance explanation, 25% shrinkage reduction",
+                    "status": "📋 Planned"
+                }
+            ]
+        },
+        "Manufacturing": {
+            "icon": "🏭",
+            "title": "Manufacturing & Supply Chain",
+            "description": "Quality control and compliance automation",
+            "examples": [
+                {
+                    "name": "Quality Exception Resolution",
+                    "challenge": "Analyzing quality inspection failures and routing for disposition",
+                    "solution": "Rules classify defect types, ML predicts rework success, GenAI analyzes inspection notes",
+                    "metrics": "Target: 45% auto-disposition, 20% reduction in scrap",
+                    "status": "📋 Planned"
+                },
+                {
+                    "name": "Supplier Invoice Reconciliation",
+                    "challenge": "Matching supplier invoices with purchase orders and delivery receipts",
+                    "solution": "Algorithm handles quantity/price variances, rules validate terms, policy routes discrepancies",
+                    "metrics": "Target: 55% auto-match, 35% faster payment cycle",
+                    "status": "📋 Planned"
+                },
+                {
+                    "name": "Compliance Documentation Validation",
+                    "challenge": "Verifying completeness of regulatory compliance documentation",
+                    "solution": "GenAI extracts required data points, rules validate against standards, assurance checks evidence",
+                    "metrics": "Target: 80% auto-validation, 99% compliance rate",
+                    "status": "📋 Planned"
+                }
+            ]
+        }
+    }
+
+    # Get current vertical use cases
+    vertical_data = use_cases.get(vertical, use_cases["Finance"])
+
+    # Header
+    st.markdown(f"## {vertical_data['icon']} {vertical_data['title']}")
+    st.markdown(f"**{vertical_data['description']}**")
+    st.markdown("---")
+
+    # Show examples
+    for i, example in enumerate(vertical_data["examples"], 1):
+        with st.expander(f"{i}. {example['name']} {example['status']}", expanded=(i == 1)):
+            col1, col2 = st.columns([2, 1])
+
+            with col1:
+                st.markdown(f"**Challenge:**")
+                st.markdown(example["challenge"])
+
+                st.markdown(f"**Solution:**")
+                st.markdown(example["solution"])
+
+            with col2:
+                st.markdown(f"**Expected Metrics:**")
+                st.info(example["metrics"])
+
+                st.markdown(f"**Status:**")
+                if "Demo Available" in example["status"]:
+                    st.success(example["status"])
+                    if vertical == "Finance" and i == 1:
+                        if st.button(f"▶️ Launch Demo", key=f"launch_{i}"):
+                            st.session_state.page = "Dashboard"
+                            st.rerun()
+                elif "In Development" in example["status"]:
+                    st.warning(example["status"])
+                else:
+                    st.caption(example["status"])
+
+    # Architecture overview
+    st.markdown("---")
+    st.markdown("## 🏗️ QURE Architecture for All Verticals")
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        st.markdown("**Layer 1: Retrieval**")
+        st.markdown("""
+        - Document ingestion
+        - Entity extraction
+        - Vector embeddings
+        - Graph relationships
+        """)
+
+    with col2:
+        st.markdown("**Layer 2: Reasoning**")
+        st.markdown("""
+        - Rules engine
+        - Algorithms
+        - ML models
+        - GenAI reasoning
+        """)
+
+    with col3:
+        st.markdown("**Layer 3: Decision**")
+        st.markdown("""
+        - Assurance validation
+        - Policy routing
+        - Action execution
+        - Learning feedback
+        """)
+
+    # Non-negotiables
+    st.markdown("---")
+    st.markdown("## ✅ Non-Negotiables (All Verticals)")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.markdown("""
+        1. **Citation Required**: Every LLM output must cite source documents
+        2. **Calibrated Confidence**: All probabilities must be calibrated
+        3. **Immutable Audit**: All decisions logged to immutable audit trail
+        """)
+
+    with col2:
+        st.markdown("""
+        4. **No Direct LLM Writes**: LLMs cannot write directly to systems of record
+        5. **HITL by Design**: Human-in-the-loop for medium confidence cases
+        6. **Explainable AI**: Every decision must be explainable to end users
+        """)
 
 
 def show_case_list(gl_transactions, bank_transactions, expected_matches):
@@ -663,6 +962,314 @@ def show_live_processing(gl_transactions, bank_transactions, expected_matches):
             )
 
             st.plotly_chart(fig, use_container_width=True)
+
+
+def show_audit_trail(gl_transactions, bank_transactions, expected_matches):
+    """Show audit trail with timeline visualization"""
+    import plotly.graph_objects as go
+    from datetime import datetime, timedelta
+
+    st.header("📜 Audit Trail")
+    st.markdown("Complete history of agent decisions and actions")
+
+    # Case selection
+    case_options = ["All Cases"] + [f"{m['case_id']}" for m in expected_matches]
+    selected_case = st.selectbox("Filter by Case", case_options)
+
+    # Generate mock audit events
+    audit_events = []
+
+    for idx, match in enumerate(expected_matches):
+        if selected_case != "All Cases" and match['case_id'] != selected_case:
+            continue
+
+        base_time = datetime.now() - timedelta(hours=24-idx)
+
+        # Create event chain for this case
+        events = [
+            {"time": base_time, "agent": "Orchestrator", "action": "Case initiated", "case_id": match['case_id'], "status": "info"},
+            {"time": base_time + timedelta(seconds=1), "agent": "Retriever", "action": "Retrieved 2 documents", "case_id": match['case_id'], "status": "success"},
+            {"time": base_time + timedelta(seconds=2), "agent": "Data", "action": "Extracted 8 entities", "case_id": match['case_id'], "status": "success"},
+            {"time": base_time + timedelta(seconds=3), "agent": "Rules", "action": f"Evaluated rules: {match['match_score']:.0%} score", "case_id": match['case_id'], "status": "success"},
+            {"time": base_time + timedelta(seconds=4), "agent": "Algorithm", "action": f"Computed match: {match['match_score']:.0%}", "case_id": match['case_id'], "status": "success"},
+            {"time": base_time + timedelta(seconds=5), "agent": "ML Model", "action": "Prediction: 0.91 confidence", "case_id": match['case_id'], "status": "success"},
+            {"time": base_time + timedelta(seconds=6), "agent": "GenAI", "action": "Generated explanation with 5 citations", "case_id": match['case_id'], "status": "success"},
+            {"time": base_time + timedelta(seconds=7), "agent": "Assurance", "action": "Validated: 0.85 assurance, no hallucination", "case_id": match['case_id'], "status": "success"},
+            {"time": base_time + timedelta(seconds=8), "agent": "Policy", "action": f"Decision: {match['expected_decision'].replace('_', ' ').title()}", "case_id": match['case_id'], "status": "warning" if "review" in match['expected_decision'] else "success"},
+            {"time": base_time + timedelta(seconds=9), "agent": "Action", "action": "Executed action", "case_id": match['case_id'], "status": "success"},
+        ]
+
+        audit_events.extend(events)
+
+    # Sort by time
+    audit_events.sort(key=lambda x: x['time'], reverse=True)
+
+    # Stats
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        st.metric("Total Events", len(audit_events))
+    with col2:
+        st.metric("Success", sum(1 for e in audit_events if e['status'] == 'success'))
+    with col3:
+        st.metric("Warnings", sum(1 for e in audit_events if e['status'] == 'warning'))
+    with col4:
+        st.metric("Cases Tracked", len(set(e['case_id'] for e in audit_events)))
+
+    # Timeline visualization
+    st.subheader("Event Timeline")
+
+    # Create timeline chart
+    fig = go.Figure()
+
+    agents = list(set(e['agent'] for e in audit_events))
+    colors = {'info': '#2196F3', 'success': '#4CAF50', 'warning': '#FFC107', 'error': '#FF5252'}
+
+    for agent in agents:
+        agent_events = [e for e in audit_events if e['agent'] == agent]
+
+        fig.add_trace(go.Scatter(
+            x=[e['time'] for e in agent_events],
+            y=[e['agent'] for e in agent_events],
+            mode='markers',
+            name=agent,
+            marker=dict(
+                size=12,
+                color=[colors.get(e['status'], '#666') for e in agent_events]
+            ),
+            text=[f"{e['case_id']}: {e['action']}" for e in agent_events],
+            hovertemplate='<b>%{text}</b><br>%{x}<extra></extra>'
+        ))
+
+    fig.update_layout(
+        title="Agent Activity Timeline",
+        xaxis_title="Time",
+        yaxis_title="Agent",
+        height=400,
+        showlegend=True
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+
+    # Event list
+    st.subheader("Recent Events")
+
+    for event in audit_events[:20]:  # Show last 20 events
+        status_emoji = {"info": "ℹ️", "success": "✅", "warning": "⚠️", "error": "❌"}
+
+        with st.container():
+            col1, col2, col3, col4 = st.columns([2, 2, 3, 3])
+
+            with col1:
+                st.text(event['time'].strftime("%H:%M:%S"))
+
+            with col2:
+                st.text(f"{status_emoji[event['status']]} {event['agent']}")
+
+            with col3:
+                st.text(event['case_id'])
+
+            with col4:
+                st.text(event['action'])
+
+            st.divider()
+
+
+def show_admin_panel():
+    """Show admin panel for configuration"""
+    import json
+
+    st.header("⚙️ Admin Panel")
+    st.markdown("Configure system parameters and agent settings")
+
+    tab1, tab2, tab3, tab4 = st.tabs(["Agent Configuration", "Policy Thresholds", "Rule Sets", "System Settings"])
+
+    with tab1:
+        st.subheader("Agent Signal Weights")
+        st.markdown("Adjust the weight of each agent in the fusion score")
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            rules_weight = st.slider("Rules Engine Weight", 0.0, 1.0, 0.25, 0.05)
+            algorithm_weight = st.slider("Algorithm Weight", 0.0, 1.0, 0.20, 0.05)
+            ml_weight = st.slider("ML Model Weight", 0.0, 1.0, 0.20, 0.05)
+
+        with col2:
+            genai_weight = st.slider("GenAI Weight", 0.0, 1.0, 0.20, 0.05)
+            assurance_weight = st.slider("Assurance Weight", 0.0, 1.0, 0.15, 0.05)
+
+        total_weight = rules_weight + algorithm_weight + ml_weight + genai_weight + assurance_weight
+
+        if abs(total_weight - 1.0) > 0.01:
+            st.warning(f"⚠️ Weights should sum to 1.0 (currently: {total_weight:.2f})")
+        else:
+            st.success(f"✅ Weights sum to {total_weight:.2f}")
+
+        if st.button("💾 Save Agent Weights"):
+            config = {
+                "signal_weights": {
+                    "rules": rules_weight,
+                    "algorithm": algorithm_weight,
+                    "ml": ml_weight,
+                    "genai": genai_weight,
+                    "assurance": assurance_weight
+                }
+            }
+            st.success("Agent weights saved successfully!")
+            with st.expander("View Configuration"):
+                st.json(config)
+
+    with tab2:
+        st.subheader("Policy Decision Thresholds")
+        st.markdown("Set thresholds for automatic decision routing")
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            auto_resolve_threshold = st.slider("Auto-Resolve Threshold", 0.0, 1.0, 0.85, 0.05)
+            st.caption("Cases above this score are automatically resolved")
+
+            hitl_review_threshold = st.slider("HITL Review Threshold", 0.0, 1.0, 0.50, 0.05)
+            st.caption("Cases above this score require human review")
+
+        with col2:
+            reject_threshold = st.slider("Reject Threshold", 0.0, 1.0, 0.30, 0.05)
+            st.caption("Cases below this score are automatically rejected")
+
+            assurance_threshold = st.slider("Min Assurance Required", 0.0, 1.0, 0.70, 0.05)
+            st.caption("Minimum assurance score for auto-resolve")
+
+        # Visualization
+        import plotly.graph_objects as go
+
+        fig = go.Figure()
+
+        fig.add_trace(go.Scatter(
+            x=[0, reject_threshold, reject_threshold, hitl_review_threshold, hitl_review_threshold, auto_resolve_threshold, auto_resolve_threshold, 1.0],
+            y=[0, 0, 1, 1, 2, 2, 3, 3],
+            fill='tozeroy',
+            name='Decision Zones',
+            line=dict(color='#4CAF50'),
+            fillcolor='rgba(76, 175, 80, 0.2)'
+        ))
+
+        fig.update_layout(
+            title="Decision Threshold Zones",
+            xaxis_title="Score",
+            yaxis=dict(
+                tickmode='array',
+                tickvals=[0.5, 1.5, 2.5],
+                ticktext=['Reject', 'HITL Review', 'Auto-Resolve']
+            ),
+            height=300
+        )
+
+        st.plotly_chart(fig, use_container_width=True)
+
+        if st.button("💾 Save Thresholds"):
+            config = {
+                "thresholds": {
+                    "auto_resolve": auto_resolve_threshold,
+                    "hitl_review": hitl_review_threshold,
+                    "reject": reject_threshold,
+                    "min_assurance": assurance_threshold
+                }
+            }
+            st.success("Thresholds saved successfully!")
+            with st.expander("View Configuration"):
+                st.json(config)
+
+    with tab3:
+        st.subheader("Rule Set Management")
+        st.markdown("Enable/disable specific rules in the rules engine")
+
+        rules = [
+            {"id": "FR_R1", "name": "Amount Match", "enabled": True, "severity": "mandatory"},
+            {"id": "FR_R2", "name": "Date Proximity", "enabled": True, "severity": "mandatory"},
+            {"id": "FR_R3", "name": "High Value Requires SWIFT", "enabled": True, "severity": "mandatory"},
+            {"id": "FR_R4", "name": "Payer Match", "enabled": True, "severity": "optional"},
+            {"id": "FR_R5", "name": "Duplicate Detection", "enabled": True, "severity": "mandatory"},
+            {"id": "FR_R6", "name": "SOX Compliance", "enabled": True, "severity": "mandatory"},
+            {"id": "FR_R7", "name": "Currency Match", "enabled": True, "severity": "mandatory"},
+            {"id": "FR_R8", "name": "Business Day Check", "enabled": False, "severity": "optional"},
+        ]
+
+        st.markdown("#### Active Rules")
+
+        for rule in rules:
+            col1, col2, col3, col4 = st.columns([3, 2, 2, 1])
+
+            with col1:
+                st.text(f"{rule['id']}: {rule['name']}")
+
+            with col2:
+                severity_color = "🔴" if rule['severity'] == "mandatory" else "🟡"
+                st.text(f"{severity_color} {rule['severity'].title()}")
+
+            with col3:
+                rule['enabled'] = st.checkbox(f"Enabled###{rule['id']}", value=rule['enabled'], key=f"rule_{rule['id']}")
+
+            with col4:
+                if st.button("📝", key=f"edit_{rule['id']}"):
+                    st.info(f"Edit rule {rule['id']}")
+
+        if st.button("💾 Save Rule Configuration"):
+            enabled_rules = [r['id'] for r in rules if r['enabled']]
+            st.success(f"Saved {len(enabled_rules)} enabled rules!")
+            with st.expander("View Configuration"):
+                st.json({"enabled_rules": enabled_rules})
+
+    with tab4:
+        st.subheader("System Settings")
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.markdown("#### Performance Settings")
+            max_concurrent_cases = st.number_input("Max Concurrent Cases", 1, 100, 10)
+            agent_timeout = st.number_input("Agent Timeout (seconds)", 1, 300, 30)
+            retry_attempts = st.number_input("Retry Attempts", 0, 5, 3)
+
+            st.markdown("#### Logging Settings")
+            log_level = st.selectbox("Log Level", ["DEBUG", "INFO", "WARNING", "ERROR"])
+            enable_audit = st.checkbox("Enable Audit Logging", value=True)
+
+        with col2:
+            st.markdown("#### LLM Settings")
+            default_llm_provider = st.selectbox("Default LLM Provider", ["OpenAI", "Anthropic", "Google"])
+            default_model = st.text_input("Default Model", "gpt-4-turbo-preview")
+            temperature = st.slider("Temperature", 0.0, 2.0, 0.0, 0.1)
+            max_tokens = st.number_input("Max Tokens", 100, 4000, 2000)
+
+            st.markdown("#### Database Settings")
+            enable_vector_store = st.checkbox("Enable Vector Store", value=True)
+            enable_graph_store = st.checkbox("Enable Graph Store", value=True)
+
+        if st.button("💾 Save System Settings"):
+            config = {
+                "performance": {
+                    "max_concurrent_cases": max_concurrent_cases,
+                    "agent_timeout": agent_timeout,
+                    "retry_attempts": retry_attempts
+                },
+                "logging": {
+                    "level": log_level,
+                    "audit_enabled": enable_audit
+                },
+                "llm": {
+                    "provider": default_llm_provider,
+                    "model": default_model,
+                    "temperature": temperature,
+                    "max_tokens": max_tokens
+                },
+                "database": {
+                    "vector_store_enabled": enable_vector_store,
+                    "graph_store_enabled": enable_graph_store
+                }
+            }
+            st.success("System settings saved successfully!")
+            with st.expander("View Configuration"):
+                st.json(config)
 
 
 if __name__ == "__main__":
