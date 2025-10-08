@@ -16,7 +16,16 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 def load_test_data():
     """Load synthetic test data"""
-    data_dir = Path(__file__).parent.parent / "data" / "synthetic" / "finance"
+    # Get absolute path to data directory
+    data_dir = Path(__file__).resolve().parent.parent / "data" / "synthetic" / "finance"
+
+    # Debug: show the path
+    if not data_dir.exists():
+        st.error(f"Data directory not found: {data_dir}")
+        st.info(f"__file__ = {__file__}")
+        st.info(f"parent = {Path(__file__).parent}")
+        st.info(f"parent.parent = {Path(__file__).parent.parent}")
+        raise FileNotFoundError(f"Data directory not found: {data_dir}")
 
     with open(data_dir / "gl_transactions.json") as f:
         gl_transactions = json.load(f)
