@@ -66,12 +66,15 @@ class GenAIReasoner:
             raise ValueError(f"Unsupported provider: {provider}")
 
         # Knowledge substrate connections (optional)
+        self.vector_store = None
+        self.evidence_tracker = None
+
         if SUBSTRATE_AVAILABLE:
-            self.vector_store = get_vector_store()
-            self.evidence_tracker = get_evidence_tracker()
-        else:
-            self.vector_store = None
-            self.evidence_tracker = None
+            try:
+                self.vector_store = get_vector_store()
+                self.evidence_tracker = get_evidence_tracker()
+            except Exception as e:
+                logger.warning(f"Could not initialize substrate: {e}. RAG features disabled.")
 
         logger.info(
             f"✅ GenAI Reasoner initialized with {provider}/{model}"

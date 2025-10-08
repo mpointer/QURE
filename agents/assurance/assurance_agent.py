@@ -34,10 +34,14 @@ class AssuranceAgent:
 
     def __init__(self):
         """Initialize Assurance Agent"""
+        self.evidence_tracker = None
+
         if SUBSTRATE_AVAILABLE:
-            self.evidence_tracker = get_evidence_tracker()
-        else:
-            self.evidence_tracker = None
+            try:
+                self.evidence_tracker = get_evidence_tracker()
+            except Exception as e:
+                logger.warning(f"Could not initialize evidence tracker: {e}. Grounding validation disabled.")
+
         logger.info("✅ Assurance Agent initialized")
 
     def evaluate(
