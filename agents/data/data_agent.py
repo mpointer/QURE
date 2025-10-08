@@ -17,12 +17,16 @@ from common.schemas import (
     GraphEdge,
     GraphNode,
 )
-from substrate import (
-    get_evidence_tracker,
-    get_feature_store,
-    get_graph_store,
-    get_vector_store,
-)
+try:
+    from substrate import (
+        get_evidence_tracker,
+        get_feature_store,
+        get_graph_store,
+        get_vector_store,
+    )
+    SUBSTRATE_AVAILABLE = True
+except ImportError:
+    SUBSTRATE_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 

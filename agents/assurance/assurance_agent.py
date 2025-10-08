@@ -10,7 +10,12 @@ from typing import Any, Dict, List, Optional
 import numpy as np
 
 from common.schemas import AssuranceRequest, AssuranceResponse
-from substrate import get_evidence_tracker
+
+try:
+    from substrate import get_evidence_tracker
+    SUBSTRATE_AVAILABLE = True
+except ImportError:
+    SUBSTRATE_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +34,10 @@ class AssuranceAgent:
 
     def __init__(self):
         """Initialize Assurance Agent"""
-        self.evidence_tracker = get_evidence_tracker()
+        if SUBSTRATE_AVAILABLE:
+            self.evidence_tracker = get_evidence_tracker()
+        else:
+            self.evidence_tracker = None
         logger.info("✅ Assurance Agent initialized")
 
     def evaluate(

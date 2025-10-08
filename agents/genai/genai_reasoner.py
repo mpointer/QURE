@@ -12,7 +12,12 @@ import openai
 from anthropic import Anthropic
 
 from common.schemas import GenAIReasoningRequest, GenAIReasoningResponse, TextSpan
-from substrate import get_evidence_tracker, get_vector_store
+
+try:
+    from substrate import get_evidence_tracker, get_vector_store
+    SUBSTRATE_AVAILABLE = True
+except ImportError:
+    SUBSTRATE_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 
@@ -56,9 +61,13 @@ class GenAIReasoner:
         else:
             raise ValueError(f"Unsupported provider: {provider}")
 
-        # Knowledge substrate connections
-        self.vector_store = get_vector_store()
-        self.evidence_tracker = get_evidence_tracker()
+        # Knowledge substrate connections (optional)
+        if SUBSTRATE_AVAILABLE:
+            self.vector_store = get_vector_store()
+            self.evidence_tracker = get_evidence_tracker()
+        else:
+            self.vector_store = None
+            self.evidence_tracker = None
 
         logger.info(
             f"✅ GenAI Reasoner initialized with {provider}/{model}"
