@@ -11,6 +11,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 import streamlit as st
+import pandas as pd
 
 # Import plotly with error handling
 try:
@@ -172,6 +173,78 @@ def load_test_data(vertical="Finance"):
         with open(data_dir / "expected_matches.json") as f:
             matches = json.load(f)
         return data1, data2, matches
+
+
+def get_confidence_color(score):
+    """Get color based on confidence score"""
+    if score >= 0.9:
+        return "🟢", "#28a745"  # Green
+    elif score >= 0.7:
+        return "🟡", "#ffc107"  # Yellow
+    else:
+        return "🔴", "#dc3545"  # Red
+
+
+def render_json_viewer(data, title="Raw Data"):
+    """Render an expandable JSON viewer with copy functionality"""
+    with st.expander(f"🔍 View {title}", expanded=False):
+        # Format JSON with indentation
+        json_str = json.dumps(data, indent=2)
+
+        # Display with syntax highlighting
+        st.json(data)
+
+        # Add copy button using st.code for better formatting
+        st.code(json_str, language="json")
+
+        # Metadata
+        st.caption(f"📊 **Fields:** {len(data)} | **Size:** {len(json_str)} bytes")
+
+
+def render_confidence_badge(score, label="Confidence"):
+    """Render a color-coded confidence badge"""
+    emoji, color = get_confidence_color(score)
+    st.markdown(
+        f"""
+        <div style='padding: 8px 12px; border-radius: 8px; background-color: {color}20;
+                    border-left: 4px solid {color}; margin: 8px 0;'>
+            <span style='font-size: 1.2em;'>{emoji}</span>
+            <strong>{label}:</strong> {score:.1%}
+            <span style='color: {color}; font-weight: bold;'> - {"High" if score >= 0.9 else "Medium" if score >= 0.7 else "Low"}</span>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+
+def render_data_quality_badge(data, data_type="Transaction"):
+    """Render data quality indicators"""
+    # Calculate completeness
+    total_fields = len(data)
+    filled_fields = sum(1 for v in data.values() if v not in [None, "", [], {}])
+    completeness = filled_fields / total_fields if total_fields > 0 else 0
+
+    # Determine quality level
+    if completeness >= 0.95:
+        badge_color = "#28a745"
+        quality_text = "✅ High Quality"
+    elif completeness >= 0.80:
+        badge_color = "#ffc107"
+        quality_text = "⚠️ Good Quality"
+    else:
+        badge_color = "#dc3545"
+        quality_text = "🔴 Needs Review"
+
+    st.markdown(
+        f"""
+        <div style='display: inline-block; padding: 4px 12px; border-radius: 12px;
+                    background-color: {badge_color}20; border: 1px solid {badge_color};
+                    font-size: 0.85em; margin: 4px 0;'>
+            {quality_text} ({completeness:.0%} complete)
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
 
 def main():
@@ -886,7 +959,7 @@ def show_case_list(gl_transactions, bank_transactions, expected_matches):
 
 
 def show_case_details(gl_transactions, bank_transactions, expected_matches):
-    """Show detailed view of a single case"""
+    """Show detailed view of a single case with progressive disclosure"""
     vertical = st.session_state.get('vertical', 'Finance')
     labels = get_vertical_labels(vertical)
 
@@ -906,14 +979,20 @@ def show_case_details(gl_transactions, bank_transactions, expected_matches):
     gl = next((g for g in gl_transactions if g.get("id") == data1_id), {})
     bank = next((b for b in bank_transactions if b.get("id") == data2_id), {})
 
-    # Case header
-    st.subheader(f"Case: {match['case_id']}")
+    # Case header with confidence badge
+    col_title, col_badge = st.columns([3, 1])
+    with col_title:
+        st.subheader(f"Case: {match['case_id']}")
+    with col_badge:
+        render_confidence_badge(match['match_score'], "Match Confidence")
 
-    col1, col2, col3 = st.columns(3)
+    # Key metrics
+    col1, col2, col3, col4 = st.columns(4)
     with col1:
-        st.metric("Match Score", f"{match['match_score']:.2%}")
+        emoji, color = get_confidence_color(match['match_score'])
+        st.metric("Match Score", f"{emoji} {match['match_score']:.2%}")
     with col2:
-        st.metric("Expected Decision", match['expected_decision'].replace('_', ' ').title())
+        st.metric("Decision", match['expected_decision'].replace('_', ' ').title())
     with col3:
         # Calculate date diff based on vertical
         try:
@@ -925,60 +1004,146 @@ def show_case_details(gl_transactions, bank_transactions, expected_matches):
                 date2_str = bank.get('date', '2024-01-01')
 
             date_diff = abs((
-                __import__('datetime').datetime.strptime(date2_str, '%Y-%m-%d') -
-                __import__('datetime').datetime.strptime(date1_str, '%Y-%m-%d')
+                datetime.strptime(date2_str, '%Y-%m-%d') -
+                datetime.strptime(date1_str, '%Y-%m-%d')
             ).days)
             st.metric("Date Difference", f"{date_diff} days")
         except:
             st.metric("Date Difference", "N/A")
+    with col4:
+        # Data quality indicator
+        avg_quality = (len([v for v in gl.values() if v]) + len([v for v in bank.values() if v])) / (len(gl) + len(bank))
+        st.metric("Data Quality", f"{avg_quality:.0%}")
 
-    # Transactions
-    st.subheader("Details")
+    st.markdown("---")
 
-    col1, col2 = st.columns(2)
+    # Progressive Disclosure with Tabs
+    tab1, tab2, tab3, tab4 = st.tabs([
+        "📊 Overview",
+        "🔍 Detailed Analysis",
+        "🤖 Agent Reasoning",
+        "📋 Raw Data"
+    ])
 
-    with col1:
-        st.markdown(f"### {labels['data1_label']}")
-        st.json(gl)
+    with tab1:
+        # Overview Tab
+        st.markdown("### Transaction Summary")
 
-    with col2:
-        st.markdown(f"### {labels['data2_label']}")
-        st.json(bank)
+        col1, col2 = st.columns(2)
 
-    # QRU Scores (simulated)
-    st.subheader("QRU Scores")
+        with col1:
+            st.markdown(f"#### {labels['data1_label']}")
+            render_data_quality_badge(gl, labels['data1_label'])
 
-    agent_scores = {
-        "Rules Engine": 0.90 if match['match_score'] > 0.8 else 0.60,
-        "Algorithm": match['match_score'],
-        "ML Model": min(1.0, match['match_score'] + 0.05),
-        "GenAI Reasoner": min(1.0, match['match_score'] + 0.02),
-        "Assurance": 0.85 if match['match_score'] > 0.7 else 0.50,
-    }
+            # Key fields from data1
+            amount_field = labels.get('amount_field', 'amount')
+            date_field = labels.get('date_field', 'date')
+            entity_field = labels.get('entity_field', 'payer')
+            memo_field = labels.get('memo_field', 'memo')
 
-    for agent, score in agent_scores.items():
-        st.progress(score, text=f"{agent}: {score:.2%}")
+            st.markdown(f"**ID:** `{gl.get('id', 'N/A')}`")
+            st.markdown(f"**{amount_field.replace('_', ' ').title()}:** ${gl.get(amount_field, 0):,.2f}")
+            st.markdown(f"**Date:** {gl.get(date_field, 'N/A')}")
+            st.markdown(f"**{entity_field.replace('_', ' ').title()}:** {gl.get(entity_field, 'N/A')}")
+            st.markdown(f"**{memo_field.replace('_', ' ').title()}:** {gl.get(memo_field, 'N/A')}")
 
-    # Policy Decision
-    st.subheader("Policy Decision")
+        with col2:
+            st.markdown(f"#### {labels['data2_label']}")
+            render_data_quality_badge(bank, labels['data2_label'])
 
-    st.markdown(f"**Decision:** {match['expected_decision'].replace('_', ' ').title()}")
-    st.markdown(f"**Confidence:** {match['match_score']:.2%}")
-    st.markdown(f"**Reasoning:** {match['notes']}")
+            st.markdown(f"**ID:** `{bank.get('id', 'N/A')}`")
+            st.markdown(f"**{amount_field.replace('_', ' ').title()}:** ${bank.get(amount_field, 0):,.2f}")
+            st.markdown(f"**Date:** {bank.get(date_field, 'N/A')}")
+            st.markdown(f"**{entity_field.replace('_', ' ').title()}:** {bank.get(entity_field, 'N/A')}")
+            st.markdown(f"**{memo_field.replace('_', ' ').title()}:** {bank.get(memo_field, 'N/A')}")
 
-    # Action Items
-    st.subheader("Action Items")
+        # Match summary
+        st.markdown("### Match Analysis")
+        st.markdown(f"**Matching Fields:** Amount, Date, Entity")
+        st.markdown(f"**Confidence Level:** {match['match_score']:.1%}")
+        st.markdown(f"**Recommendation:** {match['notes']}")
 
-    if match['expected_decision'] == "auto_approve":
-        st.success("Action: Auto-approve reconciliation and update GL status")
-    elif match['expected_decision'] == "human_review":
-        st.warning("Action: Escalate to human reviewer for validation")
-    elif match['expected_decision'] == "auto_reject":
-        st.error("Action: Auto-reject and flag for investigation")
-    elif match['expected_decision'] == "request_evidence":
-        st.info("Action: Request additional evidence (e.g., SWIFT reference)")
-    elif match['expected_decision'] == "escalate":
-        st.warning("Action: Escalate to senior management for approval")
+    with tab2:
+        # Detailed Analysis Tab
+        st.markdown("### Field-by-Field Comparison")
+
+        # Compare key fields
+        comparison_data = []
+        for field in [amount_field, date_field, entity_field]:
+            val1 = gl.get(field, "N/A")
+            val2 = bank.get(field, "N/A")
+            match_status = "✅" if str(val1) == str(val2) else "⚠️"
+
+            comparison_data.append({
+                "Field": field.replace('_', ' ').title(),
+                f"{labels['data1_label']}": str(val1),
+                f"{labels['data2_label']}": str(val2),
+                "Match": match_status
+            })
+
+        # Display as table
+        df = pd.DataFrame(comparison_data)
+        st.dataframe(df, use_container_width=True, hide_index=True)
+
+        st.markdown("### Policy Decision")
+        if match['expected_decision'] == "auto_approve":
+            st.success("✅ **Auto-Approve:** All criteria met for automatic resolution")
+        elif match['expected_decision'] == "human_review":
+            st.warning("⚠️ **Human Review:** Manual validation required")
+        elif match['expected_decision'] == "auto_reject":
+            st.error("❌ **Auto-Reject:** Insufficient match confidence")
+        elif match['expected_decision'] == "request_evidence":
+            st.info("📋 **Request Evidence:** Additional documentation needed")
+        elif match['expected_decision'] == "escalate":
+            st.warning("🔺 **Escalate:** Senior approval required")
+
+    with tab3:
+        # Agent Reasoning Tab
+        st.markdown("### QRU Decision Chain")
+        st.caption("_How each QURE Resolution Unit contributed to the final decision_")
+
+        agent_scores = {
+            "Rules Engine": (0.90 if match['match_score'] > 0.8 else 0.60, "Business logic validation"),
+            "Algorithm": (match['match_score'], "Exact field matching"),
+            "ML Model": (min(1.0, match['match_score'] + 0.05), "Pattern recognition"),
+            "GenAI Reasoner": (min(1.0, match['match_score'] + 0.02), "Contextual analysis"),
+            "Assurance QRU": (0.85 if match['match_score'] > 0.7 else 0.50, "Uncertainty quantification"),
+        }
+
+        for agent, (score, description) in agent_scores.items():
+            emoji, color = get_confidence_color(score)
+            col_agent, col_score = st.columns([3, 1])
+
+            with col_agent:
+                st.markdown(f"**{emoji} {agent}**")
+                st.caption(description)
+                st.progress(score)
+
+            with col_score:
+                st.metric("", f"{score:.1%}")
+
+        st.markdown("---")
+        st.markdown("### Final Decision Logic")
+        st.markdown(f"**Overall Confidence:** {match['match_score']:.1%}")
+        st.markdown(f"**Decision:** {match['expected_decision'].replace('_', ' ').title()}")
+        st.markdown(f"**Reasoning:** {match['notes']}")
+
+    with tab4:
+        # Raw Data Tab
+        st.markdown("### Raw Transaction Data")
+        st.caption("View and copy the complete JSON data for each transaction")
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            render_json_viewer(gl, f"{labels['data1_label']} JSON")
+
+        with col2:
+            render_json_viewer(bank, f"{labels['data2_label']} JSON")
+
+        # Match metadata
+        st.markdown("### Match Metadata")
+        render_json_viewer(match, "Match Record JSON")
 
 
 def show_agent_performance():
@@ -1179,7 +1344,6 @@ def show_live_processing(gl_transactions, bank_transactions, expected_matches):
         # Show results in table
         st.subheader("Batch Results")
 
-        import pandas as pd
         df = pd.DataFrame(batch_results)
         df['decision'] = df['decision'].str.replace('_', ' ').str.title()
         df['score'] = df['score'].apply(lambda x: f"{x:.0%}")
