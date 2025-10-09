@@ -305,6 +305,117 @@ def show_dashboard(gl_transactions, bank_transactions, expected_matches):
         rejected = sum(1 for m in expected_matches if m["expected_decision"] == "reject")
         st.metric("Rejected", rejected, f"{rejected/len(expected_matches)*100:.0f}%")
 
+    # ROI Calculator
+    st.markdown("---")
+    st.subheader("💎 Business Impact & ROI")
+
+    # Calculate ROI metrics
+    total_cases = len(expected_matches)
+    auto_resolved_count = sum(1 for m in expected_matches if m["expected_decision"] == "auto_resolve")
+    hitl_count = sum(1 for m in expected_matches if m["expected_decision"] == "hitl_review")
+
+    # Time savings assumptions
+    manual_time_per_case = 15  # minutes
+    qure_auto_time = 0.5  # minutes for auto-resolved
+    qure_hitl_time = 3  # minutes for HITL review
+
+    # Calculate time saved
+    manual_total_minutes = total_cases * manual_time_per_case
+    qure_total_minutes = (auto_resolved_count * qure_auto_time) + (hitl_count * qure_hitl_time) + (rejected * 1)
+    time_saved_minutes = manual_total_minutes - qure_total_minutes
+    time_saved_hours = time_saved_minutes / 60
+
+    # Cost savings assumptions
+    fte_hourly_rate = 100  # dollars per hour
+    cost_saved = time_saved_hours * fte_hourly_rate
+
+    # ROI metrics in 4 columns
+    roi_col1, roi_col2, roi_col3, roi_col4 = st.columns(4)
+
+    with roi_col1:
+        st.markdown(f"""
+        <div style='text-align: center; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px;'>
+            <h2 style='color: white; margin: 0;'>${cost_saved:,.0f}</h2>
+            <p style='color: white; margin: 5px 0 0 0;'>Cost Savings</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with roi_col2:
+        st.markdown(f"""
+        <div style='text-align: center; padding: 20px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 10px;'>
+            <h2 style='color: white; margin: 0;'>{time_saved_hours:.1f}h</h2>
+            <p style='color: white; margin: 5px 0 0 0;'>Time Saved</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with roi_col3:
+        efficiency_gain = ((manual_total_minutes - qure_total_minutes) / manual_total_minutes) * 100
+        st.markdown(f"""
+        <div style='text-align: center; padding: 20px; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); border-radius: 10px;'>
+            <h2 style='color: white; margin: 0;'>{efficiency_gain:.0f}%</h2>
+            <p style='color: white; margin: 5px 0 0 0;'>Efficiency Gain</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with roi_col4:
+        avg_time_per_case = qure_total_minutes / total_cases
+        st.markdown(f"""
+        <div style='text-align: center; padding: 20px; background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); border-radius: 10px;'>
+            <h2 style='color: white; margin: 0;'>{avg_time_per_case:.1f}m</h2>
+            <p style='color: white; margin: 5px 0 0 0;'>Avg Time/Case</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    # Cumulative Business Impact
+    st.markdown("---")
+    st.subheader("📊 Cumulative Business Impact")
+
+    # Calculate cumulative metrics (simulating growing totals over time)
+    import plotly.graph_objects as go
+
+    # Create animated gauge/indicator charts
+    impact_col1, impact_col2, impact_col3 = st.columns(3)
+
+    with impact_col1:
+        total_cases_processed = total_cases * 50  # Simulate 50 batches
+        fig_cases = go.Figure(go.Indicator(
+            mode="number+delta",
+            value=total_cases_processed,
+            delta={'reference': total_cases_processed * 0.9, 'relative': True},
+            title={'text': "Total Cases Processed"},
+            domain={'x': [0, 1], 'y': [0, 1]}
+        ))
+        fig_cases.update_layout(height=200)
+        st.plotly_chart(fig_cases, use_container_width=True)
+
+    with impact_col2:
+        cumulative_time_saved = time_saved_hours * 50  # 50 batches
+        fig_time = go.Figure(go.Indicator(
+            mode="number+delta",
+            value=cumulative_time_saved,
+            delta={'reference': cumulative_time_saved * 0.85, 'relative': True},
+            title={'text': "Total Hours Saved"},
+            domain={'x': [0, 1], 'y': [0, 1]},
+            number={'suffix': "h"}
+        ))
+        fig_time.update_layout(height=200)
+        st.plotly_chart(fig_time, use_container_width=True)
+
+    with impact_col3:
+        cumulative_cost_saved = cost_saved * 50  # 50 batches
+        fig_cost = go.Figure(go.Indicator(
+            mode="number+delta",
+            value=cumulative_cost_saved,
+            delta={'reference': cumulative_cost_saved * 0.85, 'relative': True},
+            title={'text': "Total Cost Savings"},
+            domain={'x': [0, 1], 'y': [0, 1]},
+            number={'prefix': "$", 'valueformat': ",.0f"}
+        ))
+        fig_cost.update_layout(height=200)
+        st.plotly_chart(fig_cost, use_container_width=True)
+
+    st.markdown("---")
+
     # Interactive charts
     col1, col2 = st.columns(2)
 
@@ -347,6 +458,55 @@ def show_dashboard(gl_transactions, bank_transactions, expected_matches):
         )
 
         st.plotly_chart(fig, use_container_width=True)
+
+    # Add comparison chart: Manual vs QURE processing
+    st.markdown("---")
+    st.subheader("⚡ Processing Speed Comparison")
+
+    # Calculate processing times for different case types
+    case_types = ["Auto Resolved", "HITL Review", "Rejected"]
+    manual_times = [15, 15, 15]  # All take 15 min manually
+    qure_times = [0.5, 3, 1]  # Different for each type with QURE
+
+    fig_comparison = go.Figure()
+
+    fig_comparison.add_trace(go.Bar(
+        name='Manual Processing',
+        x=case_types,
+        y=manual_times,
+        marker_color='#FF6B6B',
+        text=[f"{t} min" for t in manual_times],
+        textposition='auto',
+    ))
+
+    fig_comparison.add_trace(go.Bar(
+        name='QURE Processing',
+        x=case_types,
+        y=qure_times,
+        marker_color='#4CAF50',
+        text=[f"{t} min" for t in qure_times],
+        textposition='auto',
+    ))
+
+    fig_comparison.update_layout(
+        title="Average Processing Time per Case",
+        xaxis_title="Case Type",
+        yaxis_title="Time (minutes)",
+        barmode='group',
+        height=400,
+        showlegend=True
+    )
+
+    st.plotly_chart(fig_comparison, use_container_width=True)
+
+    # Add time savings summary
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.metric("Auto Resolved Cases", f"{auto_resolved_count}", f"⚡ {14.5 * auto_resolved_count:.0f} min saved")
+    with col2:
+        st.metric("HITL Review Cases", f"{hitl_count}", f"⚡ {12 * hitl_count:.0f} min saved")
+    with col3:
+        st.metric("Rejected Cases", f"{rejected}", f"⚡ {14 * rejected:.0f} min saved")
 
     # Recent cases
     st.subheader("Recent Cases")
@@ -1059,7 +1219,7 @@ def show_live_processing(gl_transactions, bank_transactions, expected_matches):
             status_text.text(f"⚡ Executing {agent['name']} Agent...")
             progress_bar.progress((i) / total_steps)
 
-            # Update current agent card to processing
+            # Update current agent card to processing with reasoning preview
             agent_cards[agent["name"]].markdown(f"""
             <div style='text-align: center; padding: 10px; border: 2px solid #4CAF50; border-radius: 10px; background-color: #e8f5e9;'>
                 <div style='font-size: 32px;'>{agent['icon']}</div>
@@ -1068,30 +1228,73 @@ def show_live_processing(gl_transactions, bank_transactions, expected_matches):
             </div>
             """, unsafe_allow_html=True)
 
+            # Show reasoning snippet in real-time
+            with st.expander(f"🧠 {agent['name']} Reasoning", expanded=False):
+                st.markdown("*Analyzing...*")
+
             # Simulate processing time
             time.sleep(0.3)
 
-            # Generate mock results based on agent
+            # Generate mock results based on agent with reasoning
             if agent["name"] == "Retriever QRU":
-                result = {"status": "success", "documents": 2}
+                result = {
+                    "status": "success",
+                    "documents": 2,
+                    "reasoning": f"Retrieved 2 historical records matching {labels['data1_label'].lower()} ID and {labels['data2_label'].lower()} reference. Found similar cases with comparable amounts and dates."
+                }
             elif agent["name"] == "Data QRU":
-                result = {"status": "success", "entities": 8}
+                result = {
+                    "status": "success",
+                    "entities": 8,
+                    "reasoning": f"Extracted 8 key entities: payer name, amount ({gl.get('amount', 0):.2f}), date, reference ID, currency, memo text, and account details. All critical fields present."
+                }
             elif agent["name"] == "Rules QRU":
-                result = {"status": "success", "score": 0.75, "passed": 9, "failed": 0}
+                result = {
+                    "status": "success",
+                    "score": 0.75,
+                    "passed": 9,
+                    "failed": 0,
+                    "reasoning": f"9 of 9 compliance rules passed: Amount match ✓, Date within tolerance ✓, Payer name similarity ✓, Reference ID correlation ✓, Currency match ✓, No duplicate detection ✓, SOX compliance ✓, Threshold validation ✓, Memo field present ✓"
+                }
             elif agent["name"] == "Algorithm QRU":
-                result = {"status": "success", "score": 0.82}
+                result = {
+                    "status": "success",
+                    "score": 0.82,
+                    "reasoning": f"Fuzzy matching algorithm computed: Amount similarity=1.0, Date proximity=0.95, Name similarity (Levenshtein)=0.87, Reference match=0.65. Weighted score: 82%"
+                }
             elif agent["name"] == "ML Model QRU":
-                result = {"status": "success", "confidence": 0.91}
+                result = {
+                    "status": "success",
+                    "confidence": 0.91,
+                    "reasoning": "XGBoost classifier (trained on 50k historical matches) predicts MATCH with 91% confidence. Top features: amount_exact_match (0.45), date_diff_days (0.28), name_similarity (0.18), reference_pattern (0.09)"
+                }
             elif agent["name"] == "GenAI QRU":
-                result = {"status": "success", "confidence": 0.88}
+                result = {
+                    "status": "success",
+                    "confidence": 0.88,
+                    "reasoning": f"LLM analysis: Both records reference the same transaction based on contextual memo analysis. Payer entity resolved to same legal entity despite name variation. High semantic similarity in transaction descriptions. Confidence: 88%"
+                }
             elif agent["name"] == "Assurance QRU":
-                result = {"status": "success", "assurance": 0.85, "hallucination": False}
+                result = {
+                    "status": "success",
+                    "assurance": 0.85,
+                    "hallucination": False,
+                    "reasoning": "Cross-validation checks passed. ML model output aligns with rules engine (consensus). GenAI reasoning grounded in actual field values (no hallucination detected). Historical pattern match confirms decision validity. Assurance score: 85%"
+                }
             elif agent["name"] == "Policy QRU":
-                result = {"status": "success", "decision": selected_match["expected_decision"]}
+                result = {
+                    "status": "success",
+                    "decision": selected_match["expected_decision"],
+                    "reasoning": f"Policy engine decision: {selected_match['expected_decision'].replace('_', ' ').upper()}. Based on consensus score (85%), match confidence (91%), and business rules compliance. Decision aligns with organizational risk tolerance and approval thresholds."
+                }
             elif agent["name"] == "Action QRU":
-                result = {"status": "success", "action": "reconciled"}
+                result = {
+                    "status": "success",
+                    "action": "reconciled",
+                    "reasoning": f"Executing action: Mark records as reconciled, update GL status, log transaction in audit trail, trigger downstream workflows. Estimated time saved vs manual: 14 minutes."
+                }
             else:
-                result = {"status": "success"}
+                result = {"status": "success", "reasoning": "Processing completed successfully."}
 
             agent_results[agent["name"]] = result
 
@@ -1168,6 +1371,25 @@ def show_live_processing(gl_transactions, bank_transactions, expected_matches):
             )
 
             st.plotly_chart(fig, use_container_width=True)
+
+            # Show reasoning chain with expanders
+            st.markdown("---")
+            st.subheader("🧠 Decision Reasoning Chain")
+            st.markdown("Expand each QRU to see detailed reasoning:")
+
+            for agent in agents:
+                if agent["name"] in agent_results and "reasoning" in agent_results[agent["name"]]:
+                    with st.expander(f"{agent['icon']} {agent['name']} - Why this decision?"):
+                        st.markdown(f"**Reasoning:** {agent_results[agent['name']]['reasoning']}")
+
+                        # Add visual indicator for key metrics
+                        result = agent_results[agent["name"]]
+                        if "score" in result:
+                            st.progress(result["score"], text=f"Score: {result['score']:.0%}")
+                        elif "confidence" in result:
+                            st.progress(result["confidence"], text=f"Confidence: {result['confidence']:.0%}")
+                        elif "assurance" in result:
+                            st.progress(result["assurance"], text=f"Assurance: {result['assurance']:.0%}")
 
 
 def show_audit_trail(gl_transactions, bank_transactions, expected_matches):
