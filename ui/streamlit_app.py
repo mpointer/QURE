@@ -6,9 +6,12 @@ Interactive dashboard for viewing reconciliation cases and agent decisions.
 
 import json
 import sys
+import time
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import streamlit as st
+import plotly.graph_objects as go
 
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -1077,9 +1080,6 @@ def show_about():
 
 def show_live_processing(gl_transactions, bank_transactions, expected_matches):
     """Show live case processing with animated agent workflow"""
-    import time
-    import plotly.graph_objects as go
-
     vertical = st.session_state.get('vertical', 'Finance')
     labels = get_vertical_labels(vertical)
 
@@ -1394,9 +1394,6 @@ def show_live_processing(gl_transactions, bank_transactions, expected_matches):
 
 def show_audit_trail(gl_transactions, bank_transactions, expected_matches):
     """Show audit trail with timeline visualization"""
-    import plotly.graph_objects as go
-    from datetime import datetime, timedelta
-
     st.header("📜 Audit Trail")
     st.markdown("Complete history of agent decisions and actions")
 
