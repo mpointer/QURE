@@ -11,7 +11,22 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 import streamlit as st
-import plotly.graph_objects as go
+
+# Import plotly with error handling
+try:
+    import plotly.graph_objects as go
+except ImportError as e:
+    st.error(f"""
+    Missing required package: plotly
+
+    Please ensure requirements.txt is in the repository root with:
+    ```
+    plotly==5.18.0
+    ```
+
+    Error details: {e}
+    """)
+    st.stop()
 
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))

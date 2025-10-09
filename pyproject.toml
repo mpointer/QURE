@@ -16,6 +16,10 @@ uvicorn = "^0.24.0"
 pydantic = "^2.4.0"
 python-dotenv = "^1.0.0"
 
+# UI
+streamlit = "^1.28.0"
+plotly = "^5.18.0"
+
 # Orchestration (optional - not needed for basic demo)
 # temporalio = "^1.4.0"
 
