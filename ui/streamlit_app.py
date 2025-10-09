@@ -163,16 +163,33 @@ def main():
         layout="wide",
     )
 
-    # Display QURE logo
+    # Display QURE logo with minimal spacing
     logo_path = Path(__file__).resolve().parent.parent / "Qure_logo.png"
     if logo_path.exists():
-        col1, col2, col3 = st.columns([1, 2, 1])
+        # Add custom CSS to reduce Streamlit's default padding
+        st.markdown("""
+        <style>
+        .block-container {
+            padding-top: 1rem !important;
+            padding-bottom: 0rem !important;
+        }
+        div[data-testid="stImage"] {
+            margin-bottom: -20px !important;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+
+        col1, col2, col3 = st.columns([2, 1, 2])
         with col2:
-            st.image(str(logo_path), width=400)
+            st.image(str(logo_path), width=350)
 
     st.title("QURE - Exception Resolution System")
     st.markdown("**Multi-QRU AI for Back-Office Exception Resolution**")
     st.caption("_Powered by QURE Resolution Units (QRUs)_")
+
+    # Sidebar - Add small QURE logo
+    if logo_path.exists():
+        st.sidebar.image(str(logo_path), width=150)
 
     # Sidebar - Use Case Navigator
     st.sidebar.title("🎯 Use Case Navigator")
@@ -1055,24 +1072,26 @@ def show_live_processing(gl_transactions, bank_transactions, expected_matches):
             time.sleep(0.3)
 
             # Generate mock results based on agent
-            if agent["name"] == "Retriever":
+            if agent["name"] == "Retriever QRU":
                 result = {"status": "success", "documents": 2}
-            elif agent["name"] == "Data":
+            elif agent["name"] == "Data QRU":
                 result = {"status": "success", "entities": 8}
-            elif agent["name"] == "Rules":
+            elif agent["name"] == "Rules QRU":
                 result = {"status": "success", "score": 0.75, "passed": 9, "failed": 0}
-            elif agent["name"] == "Algorithm":
+            elif agent["name"] == "Algorithm QRU":
                 result = {"status": "success", "score": 0.82}
-            elif agent["name"] == "ML Model":
+            elif agent["name"] == "ML Model QRU":
                 result = {"status": "success", "confidence": 0.91}
-            elif agent["name"] == "GenAI":
+            elif agent["name"] == "GenAI QRU":
                 result = {"status": "success", "confidence": 0.88}
-            elif agent["name"] == "Assurance":
+            elif agent["name"] == "Assurance QRU":
                 result = {"status": "success", "assurance": 0.85, "hallucination": False}
-            elif agent["name"] == "Policy":
+            elif agent["name"] == "Policy QRU":
                 result = {"status": "success", "decision": selected_match["expected_decision"]}
-            elif agent["name"] == "Action":
+            elif agent["name"] == "Action QRU":
                 result = {"status": "success", "action": "reconciled"}
+            else:
+                result = {"status": "success"}
 
             agent_results[agent["name"]] = result
 
@@ -1112,12 +1131,12 @@ def show_live_processing(gl_transactions, bank_transactions, expected_matches):
 
             with col2:
                 st.metric("Match Score", f"{selected_match['match_score']:.0%}")
-                st.metric("Assurance", f"{agent_results['Assurance']['assurance']:.0%}")
+                st.metric("Assurance", f"{agent_results['Assurance QRU']['assurance']:.0%}")
 
             with col3:
                 decision = selected_match['expected_decision'].replace('_', ' ').title()
                 st.metric("Decision", decision)
-                st.metric("ML Confidence", f"{agent_results['ML Model']['confidence']:.0%}")
+                st.metric("ML Confidence", f"{agent_results['ML Model QRU']['confidence']:.0%}")
 
             # Show QRU scores in a chart
             st.subheader("QRU Scores Breakdown")
@@ -1126,11 +1145,11 @@ def show_live_processing(gl_transactions, bank_transactions, expected_matches):
 
             agent_names = ["Rules", "Algorithm", "ML Model", "GenAI", "Assurance"]
             scores = [
-                agent_results["Rules"]["score"],
-                agent_results["Algorithm"]["score"],
-                agent_results["ML Model"]["confidence"],
-                agent_results["GenAI"]["confidence"],
-                agent_results["Assurance"]["assurance"]
+                agent_results["Rules QRU"]["score"],
+                agent_results["Algorithm QRU"]["score"],
+                agent_results["ML Model QRU"]["confidence"],
+                agent_results["GenAI QRU"]["confidence"],
+                agent_results["Assurance QRU"]["assurance"]
             ]
 
             fig.add_trace(go.Bar(
