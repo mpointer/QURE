@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  # PostgreSQL database
+  postgres:
+    image: postgres:15-alpine
+    container_name: qure-postgres
+    environment:
+      POSTGRES_USER: qure
+      POSTGRES_PASSWORD: qure
+      POSTGRES_DB: qure
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U qure"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # QURE backend API
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: qure-backend
+    environment:
+      # Application
+      APP_NAME: QURE
+      APP_VERSION: 0.1.0
+      DEBUG: "false"
+
+      # API
+      API_HOST: 0.0.0.0
+      API_PORT: 8000
+      API_RELOAD: "false"
+
+      # Database
+      DATABASE_URL: postgresql+asyncpg://qure:qure@postgres:5432/qure
+      DB_ECHO: "false"
+
+      # LLM Provider (default: Anthropic)
+      LLM_PROVIDER: anthropic
+
+      # API Keys (set in .env file)
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      HUGGINGFACE_API_KEY: ${HUGGINGFACE_API_KEY:-}
+
+      # Ollama (local)
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+
+      # Agent Configuration
+      AGENT_MAX_RETRIES: 3
+      AGENT_TIMEOUT: 60
+      AGENT_CONFIDENCE_THRESHOLD: 0.7
+
+      # Logging
+      LOG_LEVEL: INFO
+      LOG_FORMAT: json
+    ports:
+      - "8001:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  postgres_data:
+    driver: local
