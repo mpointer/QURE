@@ -459,13 +459,13 @@ Recommend human review to verify:
             reward = "+35.0 (fast, correct, cost savings)"
         elif not actual_match and decision != "auto_resolve":
             print_success("CORRECT: Escalation avoided error")
-            reward = "+12.0 (avoided bad decision)")
+            reward = "+12.0 (avoided bad decision)"
         elif actual_match and decision != "auto_resolve":
             print_warning("FALSE NEGATIVE: Could have auto-resolved safely")
-            reward = "+5.0 (correct but slow)")
+            reward = "+5.0 (correct but slow)"
         else:
             print_error("FALSE POSITIVE: Incorrect auto-resolution")
-            reward = "-25.0 (reversal + audit costs)")
+            reward = "-25.0 (reversal + audit costs)"
 
         print(f"\n{Colors.BOLD}Reward signal: {reward}{Colors.ENDC}")
         print("  → Logged for Thompson Sampling update\n")
