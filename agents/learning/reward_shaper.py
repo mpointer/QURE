@@ -290,7 +290,7 @@ class HealthcareRewardShaper(RewardShaper):
             w_risk=-15.0,          # High risk for patient safety
             baseline_cycle_time=72.0
         )
-        super().).__init__(weights)
+        super().__init__(weights)
 
     def compute_reward(self, outcome: Dict, context: Dict, action: Dict) -> float:
         # Base reward
