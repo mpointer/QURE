@@ -1,0 +1,9 @@
+{
+  "name": "qure-interactive-demo",
+  "version": "1.0.0",
+  "description": "QURE Interactive Web Demo - GL-Bank Reconciliation Walkthrough",
+  "private": true,
+  "scripts": {
+    "deploy": "vercel --prod"
+  }
+}

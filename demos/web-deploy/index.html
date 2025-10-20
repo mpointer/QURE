@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QURE Interactive Demo - GL-Bank Reconciliation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .progress-bar {
+            background: rgba(255,255,255,0.2);
+            height: 8px;
+            margin-top: 20px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #4ade80 0%, #22c55e 100%);
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .step-container {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .step-container.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .step-title {
+            font-size: 2em;
+            color: #1e3c72;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .case-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .case-box {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 25px;
+        }
+
+        .case-box h3 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            color: #475569;
+        }
+
+        .case-box.easy {
+            border-color: #22c55e;
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+        }
+
+        .case-box.hard {
+            border-color: #f59e0b;
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+        }
+
+        .data-field {
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+        }
+
+        .data-field strong {
+            color: #1e3c72;
+        }
+
+        .agent-reasoning {
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .agent-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 5px solid #667eea;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            opacity: 0;
+            animation: slideIn 0.5s ease forwards;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .agent-card:nth-child(1) { animation-delay: 0.1s; }
+        .agent-card:nth-child(2) { animation-delay: 0.2s; }
+        .agent-card:nth-child(3) { animation-delay: 0.3s; }
+        .agent-card:nth-child(4) { animation-delay: 0.4s; }
+        .agent-card:nth-child(5) { animation-delay: 0.5s; }
+
+        .agent-name {
+            font-weight: bold;
+            color: #1e3c72;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .agent-name::before {
+            content: "🤖";
+            margin-right: 10px;
+            font-size: 1.5em;
+        }
+
+        .agent-score {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .decision-box {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border: 3px solid #22c55e;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .decision-box.escalate {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-color: #f59e0b;
+        }
+
+        .decision-box h3 {
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .metric-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #22c55e;
+            margin: 10px 0;
+        }
+
+        .metric-label {
+            color: #64748b;
+            font-size: 1.1em;
+        }
+
+        .metric-change {
+            color: #22c55e;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .citation {
+            background: #f8fafc;
+            border-left: 4px solid #3b82f6;
+            padding: 10px 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-size: 0.95em;
+            color: #475569;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 40px;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 12px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            font-weight: 600;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .step-indicator {
+            color: #64748b;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        .learning-diagram {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+
+        .learning-step {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+
+        .learning-step-number {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+
+        .highlight {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #f59e0b;
+            margin: 20px 0;
+        }
+
+        .list-check {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .list-check li {
+            padding: 10px 0;
+            padding-left: 35px;
+            position: relative;
+        }
+
+        .list-check li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #22c55e;
+            font-weight: bold;
+            font-size: 1.5em;
+        }
+
+        @media (max-width: 768px) {
+            .case-comparison {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .controls {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 QURE Interactive Demo</h1>
+            <div class="subtitle">Quantitative Uncertainty Resolution Engine</div>
+            <div class="subtitle" style="margin-top: 10px; font-size: 1em;">
+                Revolutionizing Financial Reconciliation with Agentic AI
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- Step 1: Welcome -->
+            <div class="step-container active" data-step="1">
+                <h2 class="step-title">Welcome to QURE</h2>
+                <p style="font-size: 1.2em; margin-bottom: 20px;">
+                    Today, you'll see how QURE's Agentic AI revolutionizes back-office automation
+                    through intelligent GL-to-Bank reconciliation.
+                </p>
+
+                <div class="highlight">
+                    <h3 style="margin-bottom: 15px;">What Makes QURE Different?</h3>
+                    <ul class="list-check">
+                        <li><strong>Multi-Agent Reasoning:</strong> 12 specialized agents working together (not a single AI model)</li>
+                        <li><strong>Citation-Grounded:</strong> Every AI output has verifiable citations (no hallucinations)</li>
+                        <li><strong>Calibrated Confidence:</strong> Trustworthy probability scores that know when to escalate</li>
+                        <li><strong>Continuous Learning:</strong> Thompson Sampling bandit optimizes policies over time</li>
+                        <li><strong>Human-in-the-Loop:</strong> Safe escalation by design, full audit trail</li>
+                    </ul>
+                </div>
+
+                <div style="margin-top: 30px; padding: 20px; background: #f1f5f9; border-radius: 10px;">
+                    <h3 style="margin-bottom: 15px; color: #1e3c72;">Demo Journey</h3>
+                    <ol style="padding-left: 20px; line-height: 2;">
+                        <li>Understand the problem with manual reconciliation</li>
+                        <li>Explore QURE's multi-agent architecture</li>
+                        <li>Walk through an <strong>Easy Case</strong> (clean data, perfect match)</li>
+                        <li>Walk through a <strong>Hard Case</strong> (data quality issues, human review needed)</li>
+                        <li>See the continuous learning loop in action</li>
+                        <li>Review real-world business impact metrics</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Step 2: The Problem -->
+            <div class="step-container" data-step="2">
+                <h2 class="step-title">The Problem: Manual Reconciliation Hell</h2>
+
+                <div style="background: #fee2e2; border: 2px solid #ef4444; border-radius: 12px; padding: 30px; margin: 20px 0;">
+                    <h3 style="color: #dc2626; margin-bottom: 20px;">Current State: Finance Teams Are Drowning</h3>
+                    <p style="font-size: 1.1em; margin-bottom: 20px;">
+                        Finance teams spend <strong>thousands of hours monthly</strong> manually matching
+                        GL entries to bank statements, investigating mismatches, and resolving exceptions.
+                    </p>
+
+                    <div style="background: white; padding: 20px; border-radius: 8px; margin-top: 20px;">
+                        <h4 style="margin-bottom: 15px;">Pain Points:</h4>
+                        <ul style="line-height: 2;">
+                            <li>⏰ <strong>48-hour average</strong> cycle time per exception</li>
+                            <li>❌ <strong>10-15% error rate</strong> in manual matching</li>
+                            <li>⚠️ <strong>SOX compliance risks</strong> from incomplete documentation</li>
+                            <li>🔄 <strong>No learning</strong> from past resolutions</li>
+                            <li>💰 <strong>Junior staff</strong> making decisions on $100M+ transactions</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="highlight">
+                    <h3 style="margin-bottom: 15px;">Why Traditional Automation Fails:</h3>
+                    <div class="metrics-grid" style="grid-template-columns: 1fr 1fr;">
+                        <div style="background: white; padding: 20px; border-radius: 8px;">
+                            <h4 style="color: #dc2626;">❌ Rules Engines</h4>
+                            <p>Too brittle - break on edge cases and require constant maintenance</p>
+                        </div>
+                        <div style="background: white; padding: 20px; border-radius: 8px;">
+                            <h4 style="color: #dc2626;">❌ ML Models</h4>
+                            <p>Not explainable - no citations, compliance teams can't audit decisions</p>
+                        </div>
+                        <div style="background: white; padding: 20px; border-radius: 8px;">
+                            <h4 style="color: #dc2626;">❌ GenAI Alone</h4>
+                            <p>Hallucinates - makes up facts, can't be trusted for financial decisions</p>
+                        </div>
+                        <div style="background: white; padding: 20px; border-radius: 8px;">
+                            <h4 style="color: #dc2626;">❌ Black Box AI</h4>
+                            <p>No confidence calibration - can't distinguish certain from uncertain</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: QURE Solution -->
+            <div class="step-container" data-step="3">
+                <h2 class="step-title">The Solution: QURE's Agentic AI Architecture</h2>
+
+                <p style="font-size: 1.2em; margin-bottom: 30px;">
+                    QURE orchestrates <strong>12 specialized agents</strong> in a reasoning mesh,
+                    where each agent contributes its unique expertise to make optimal decisions.
+                </p>
+
+                <div class="agent-reasoning">
+                    <h3 style="margin-bottom: 20px; color: #1e3c72;">The 12-Agent Architecture</h3>
+
+                    <div class="agent-card">
+                        <div class="agent-name">1. Retriever Agent</div>
+                        <p>Ingests GL and bank data from multiple sources, normalizes formats</p>
+                    </div>
+
+                    <div class="agent-card">
+                        <div class="agent-name">2. UDI Agent (Universal Data Integrator)</div>
+                        <p>Extracts entities, enriches with metadata, validates data quality</p>
+                    </div>
+
+                    <div class="agent-card" style="border-left-color: #22c55e;">
+                        <div class="agent-name">3. Rules Engine Agent</div>
+                        <p>Enforces SOX compliance, mandatory business rules, amount tolerances</p>
+                    </div>
+
+                    <div class="agent-card" style="border-left-color: #3b82f6;">
+                        <div class="agent-name">4. Algorithm Agent</div>
+                        <p>Fuzzy matching, date proximity, string similarity, deterministic logic</p>
+                    </div>
+
+                    <div class="agent-card" style="border-left-color: #8b5cf6;">
+                        <div class="agent-name">5. ML Model Agent</div>
+                        <p>XGBoost classifier with calibrated confidence, trained on historical data</p>
+                    </div>
+
+                    <div class="agent-card" style="border-left-color: #f59e0b;">
+                        <div class="agent-name">6. GenAI Reasoner Agent</div>
+                        <p>Claude 3.5 + RAG for semantic understanding, citation-grounded reasoning</p>
+                    </div>
+
+                    <div class="agent-card" style="border-left-color: #ec4899;">
+                        <div class="agent-name">7. Assurance Agent</div>
+                        <p>Quantifies uncertainty, validates grounding, checks multi-agent consensus</p>
+                    </div>
+
+                    <div class="agent-card" style="border-left-color: #14b8a6;">
+                        <div class="agent-name">8. Policy Agent</div>
+                        <p>Multi-signal fusion with learned weights, risk-adjusted utility computation</p>
+                    </div>
+
+                    <div class="agent-card" style="border-left-color: #06b6d4;">
+                        <div class="agent-name">9. Action Agent</div>
+                        <p>Executes decisions: auto-resolve, escalate to human, or request more info</p>
+                    </div>
+
+                    <div class="agent-card" style="border-left-color: #84cc16;">
+                        <div class="agent-name">10. Orchestrator Agent</div>
+                        <p>Coordinates workflow, manages dependencies, handles failures gracefully</p>
+                    </div>
+
+                    <div class="agent-card" style="border-left-color: #f97316;">
+                        <div class="agent-name">11. Logging Agent</div>
+                        <p>Immutable decision logs, hash-chaining, propensity scores for learning</p>
+                    </div>
+
+                    <div class="agent-card" style="border-left-color: #a855f7;">
+                        <div class="agent-name">12. Learning Agent</div>
+                        <p>Thompson Sampling bandit, continuous policy optimization, drift detection</p>
+                    </div>
+                </div>
+
+                <div class="highlight">
+                    <h3 style="margin-bottom: 15px;">🎯 Key Differentiator: Multi-Signal Fusion</h3>
+                    <p style="font-size: 1.1em;">
+                        Instead of relying on a single AI model, QURE combines <strong>rules + algorithms + ML + GenAI</strong>
+                        with learned weights. This provides:
+                    </p>
+                    <ul style="margin-top: 15px; line-height: 2; padding-left: 20px;">
+                        <li><strong>Robustness:</strong> If one agent fails, others compensate</li>
+                        <li><strong>Explainability:</strong> Each agent's contribution is traceable</li>
+                        <li><strong>Compliance:</strong> Rules ensure mandatory checks always pass</li>
+                        <li><strong>Adaptivity:</strong> Weights optimize for each context type</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Step 4: Easy Case -->
+            <div class="step-container" data-step="4">
+                <h2 class="step-title">Case Walkthrough: Easy Reconciliation</h2>
+
+                <div class="case-box easy">
+                    <h3>📋 Case Details: GL-20250808-0042</h3>
+
+                    <div class="data-field">
+                        <strong>GL Entry:</strong><br>
+                        Date: 2025-08-08 | Amount: $11,338.16<br>
+                        Description: "Payment to Beta LLC"<br>
+                        Reference: INV-95909
+                    </div>
+
+                    <div class="data-field">
+                        <strong>Bank Entry:</strong><br>
+                        Date: 2025-08-08 | Amount: $11,338.16<br>
+                        Description: "Payment to Beta LLC"<br>
+                        Check #: 5427
+                    </div>
+
+                    <div class="data-field">
+                        <strong>Context:</strong><br>
+                        Transaction Amount: $11,338.16<br>
+                        Data Quality: 92%<br>
+                        Urgency: Low | SOX Controlled: No
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 40px; margin-bottom: 20px; color: #1e3c72;">Agent Reasoning Sequence</h3>
+
+                <div class="agent-reasoning">
+                    <div class="agent-card">
+                        <div class="agent-name">Rules Engine</div>
+                        <p>✅ Amount match within $1.00 tolerance</p>
+                        <p>✅ Date match (same day posting)</p>
+                        <p>✅ Valid reference number present</p>
+                        <span class="agent-score">Score: 0.90/1.00</span>
+                    </div>
+
+                    <div class="agent-card">
+                        <div class="agent-name">Algorithm Agent</div>
+                        <p>Description similarity (token_sort_ratio): 0.95</p>
+                        <p>Date proximity: 0 days apart</p>
+                        <p>Amount difference: $0.00</p>
+                        <span class="agent-score">Score: 0.92/1.00</span>
+                    </div>
+
+                    <div class="agent-card">
+                        <div class="agent-name">ML Model</div>
+                        <p>Features: amount_sim=1.000, date_prox=1.000, desc_sim=0.950</p>
+                        <p>Prediction: 0.94 (Match) | Calibration: ✓ Isotonic regression applied</p>
+                        <span class="agent-score">Score: 0.94/1.00</span>
+                    </div>
+
+                    <div class="agent-card">
+                        <div class="agent-name">GenAI Reasoner</div>
+                        <p style="margin-bottom: 10px;">
+                            <em>"The GL entry and bank statement show a clear match: exact amount,
+                            same-day posting, identical vendor name. This is a straightforward
+                            reconciliation with no anomalies."</em>
+                        </p>
+                        <div class="citation">[1] GL system record (timestamp: 2025-08-08 09:32)</div>
+                        <div class="citation">[2] Bank statement PDF page 4, line 17</div>
+                        <div class="citation">[3] Historical reconciliation patterns (last 90 days)</div>
+                        <span class="agent-score">Score: 0.88/1.00</span>
+                    </div>
+
+                    <div class="agent-card">
+                        <div class="agent-name">Assurance Agent</div>
+                        <p>Epistemic uncertainty (model knowledge): 0.05</p>
+                        <p>Aleatoric uncertainty (data noise): 0.03</p>
+                        <p>✓ All GenAI claims have citations</p>
+                        <p>✓ ML confidence calibrated (ECE < 0.05)</p>
+                        <p>✓ Multi-agent consensus: AGREE</p>
+                        <span class="agent-score">Score: 0.91/1.00</span>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 40px; margin-bottom: 20px; color: #1e3c72;">Policy Decision</h3>
+
+                <div style="background: white; border: 2px solid #e2e8f0; border-radius: 12px; padding: 25px;">
+                    <h4 style="margin-bottom: 15px;">Multi-Signal Fusion (learned weights):</h4>
+                    <div style="font-family: monospace; line-height: 2;">
+                        Rules Engine:   0.90 × 0.25 = 0.225<br>
+                        Algorithm:      0.92 × 0.20 = 0.184<br>
+                        ML Model:       0.94 × 0.20 = 0.188<br>
+                        GenAI:          0.88 × 0.20 = 0.176<br>
+                        Assurance:      0.91 × 0.15 = 0.137<br>
+                        <strong style="border-top: 2px solid #e2e8f0; display: block; padding-top: 10px; margin-top: 10px;">
+                        Final Utility:  0.910
+                        </strong>
+                    </div>
+                    <p style="margin-top: 20px;">
+                        Decision Threshold: <strong>0.85</strong> for auto-resolution<br>
+                        <span style="color: #22c55e; font-weight: bold;">0.910 > 0.85 → AUTO-RESOLVE ✓</span>
+                    </p>
+                </div>
+
+                <div class="decision-box">
+                    <h3>✅ DECISION: AUTO-RESOLVED</h3>
+                    <p style="font-size: 1.2em; margin: 20px 0;">
+                        Confidence: 91% | Resolution Time: <strong>2.3 seconds</strong>
+                    </p>
+                    <div style="background: white; border-radius: 8px; padding: 20px; margin-top: 20px;">
+                        <p><strong>Actions Taken:</strong></p>
+                        <p>✓ Updated GL system: Marked as reconciled</p>
+                        <p>✓ Audit log: Decision recorded with full provenance</p>
+                        <p>✓ Notification: Finance team dashboard updated</p>
+                        <p style="margin-top: 15px; color: #22c55e; font-weight: bold;">
+                            🎯 Reward: +35.0 (fast, correct, cost savings)
+                        </p>
+                    </div>
+                </div>
+
+                <div class="highlight">
+                    <h4>💡 Key Insight: Easy Case Characteristics</h4>
+                    <p>High auto-resolution confidence comes from:</p>
+                    <ul style="margin-top: 10px; padding-left: 20px;">
+                        <li>Perfect amount match</li>
+                        <li>Same-day posting</li>
+                        <li>High data quality (92%)</li>
+                        <li>Strong multi-agent consensus</li>
+                        <li>Low uncertainty scores</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Step 5: Hard Case -->
+            <div class="step-container" data-step="5">
+                <h2 class="step-title">Case Walkthrough: Hard Reconciliation</h2>
+
+                <div class="case-box hard">
+                    <h3>⚠️ Case Details: GL-20250815-0089</h3>
+
+                    <div class="data-field">
+                        <strong>GL Entry:</strong><br>
+                        Date: 2025-08-15 | Amount: $847,293.77<br>
+                        Description: "Wire transfer to Acme Corporation for Project Alpha"<br>
+                        Reference: WIRE-20250815-7392
+                    </div>
+
+                    <div class="data-field">
+                        <strong>Bank Entry:</strong><br>
+                        Date: 2025-08-18 | Amount: $847,245.54<br>
+                        Description: "Payment to Acme..."  <em>(truncated)</em><br>
+                        Wire Reference: WT7392
+                    </div>
+
+                    <div class="data-field">
+                        <strong>Context:</strong><br>
+                        Transaction Amount: $847,293.77<br>
+                        Data Quality: 61% <em>(description truncation, date mismatch)</em><br>
+                        Urgency: High | SOX Controlled: <strong>Yes</strong> (>$500k)
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 40px; margin-bottom: 20px; color: #1e3c72;">Agent Reasoning Sequence</h3>
+
+                <div class="agent-reasoning">
+                    <div class="agent-card">
+                        <div class="agent-name">Rules Engine</div>
+                        <p>⚠️ Amount difference: $48.23 (possible wire fee)</p>
+                        <p>⚠️ Date mismatch: 3 days apart</p>
+                        <p>✅ SOX compliance documentation verified</p>
+                        <span class="agent-score">Score: 0.60/1.00</span>
+                    </div>
+
+                    <div class="agent-card">
+                        <div class="agent-name">Algorithm Agent</div>
+                        <p>Description similarity: 0.73 (truncated text)</p>
+                        <p>Date proximity: 3 days apart (processing delay?)</p>
+                        <p>Amount difference: 0.006% (likely wire fee)</p>
+                        <span class="agent-score">Score: 0.68/1.00</span>
+                    </div>
+
+                    <div class="agent-card">
+                        <div class="agent-name">ML Model</div>
+                        <p>Features: amount_sim=0.994, date_prox=0.250, desc_sim=0.730</p>
+                        <p>Prediction: 0.62 (Uncertain) | High-value transaction flag: ⚠️</p>
+                        <span class="agent-score">Score: 0.62/1.00</span>
+                    </div>
+
+                    <div class="agent-card">
+                        <div class="agent-name">GenAI Reasoner</div>
+                        <p style="margin-bottom: 10px;">
+                            <em>"This case requires careful analysis: Amount discrepancy of $48.23
+                            could be wire fee, but description truncation prevents full verification.
+                            3-day delay is within normal wire processing range. As a high-value
+                            SOX-controlled transaction, recommend human review to verify wire fee
+                            legitimacy and complete vendor name match."</em>
+                        </p>
+                        <div class="citation">[1] GL wire transfer record with full description</div>
+                        <div class="citation">[2] Bank statement PDF page 12 (partial text visible)</div>
+                        <div class="citation">[3] Historical wire fee patterns: avg $45 ± $15</div>
+                        <div class="citation">[4] SOX documentation: approval chain verified</div>
+                        <span class="agent-score">Score: 0.58/1.00</span>
+                    </div>
+
+                    <div class="agent-card">
+                        <div class="agent-name">Assurance Agent</div>
+                        <p>Epistemic uncertainty: 0.18 (model less confident)</p>
+                        <p>Aleatoric uncertainty: 0.12 (data quality issues)</p>
+                        <p>⚠️ Low data quality score: 61%</p>
+                        <p>⚠️ Multi-agent consensus: PARTIAL (2 agents disagree)</p>
+                        <p>⚠️ High-value transaction requires extra validation</p>
+                        <span class="agent-score">Score: 0.65/1.00</span>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 40px; margin-bottom: 20px; color: #1e3c72;">Policy Decision</h3>
+
+                <div style="background: white; border: 2px solid #e2e8f0; border-radius: 12px; padding: 25px;">
+                    <h4 style="margin-bottom: 15px;">Multi-Signal Fusion (learned weights):</h4>
+                    <div style="font-family: monospace; line-height: 2;">
+                        Rules Engine:   0.60 × 0.25 = 0.150<br>
+                        Algorithm:      0.68 × 0.20 = 0.136<br>
+                        ML Model:       0.62 × 0.20 = 0.124<br>
+                        GenAI:          0.58 × 0.20 = 0.116<br>
+                        Assurance:      0.65 × 0.15 = 0.098<br>
+                        <strong style="border-top: 2px solid #e2e8f0; display: block; padding-top: 10px; margin-top: 10px;">
+                        Base Utility:   0.624
+                        </strong>
+                    </div>
+                    <p style="margin-top: 20px;">
+                        Risk Adjustment (SOX-controlled, $847k):<br>
+                        Risk Factor: 8.47 (transaction amount / $100k)<br>
+                        Final Utility: 0.624 × (1 - 0.1 × 8.47) = <strong>0.095</strong>
+                    </p>
+                    <p style="margin-top: 15px;">
+                        Decision Thresholds:<br>
+                        • Auto-resolve: utility > 0.85<br>
+                        • HITL review: 0.60 < utility < 0.85<br>
+                        • Escalate: utility < 0.60<br>
+                        <span style="color: #f59e0b; font-weight: bold; margin-top: 10px; display: block;">
+                        0.095 < 0.60 → ESCALATE TO HUMAN ⚠️
+                        </span>
+                    </p>
+                </div>
+
+                <div class="decision-box escalate">
+                    <h3>⚠️ DECISION: ESCALATE TO HUMAN REVIEW</h3>
+                    <p style="font-size: 1.2em; margin: 20px 0;">
+                        Confidence: 10% (too low for auto-resolution)
+                    </p>
+                    <div style="background: white; border-radius: 8px; padding: 20px; margin-top: 20px;">
+                        <p><strong>Actions Taken:</strong></p>
+                        <p>✓ Created review task: Assigned to senior reconciliation specialist</p>
+                        <p>✓ Prepared work package: All agent reasoning + evidence attached</p>
+                        <p>✓ Set SLA: 4-hour review window (high-value transaction)</p>
+                        <p>✓ Highlighted concerns: Wire fee verification, description truncation</p>
+                        <p style="margin-top: 15px; color: #f59e0b; font-weight: bold;">
+                            ⏱️ Human reviews, confirms match (wire fee verified)
+                        </p>
+                        <p style="margin-top: 10px; color: #22c55e; font-weight: bold;">
+                            🎯 Reward: +12.0 (correct escalation, avoided risky auto-resolution)
+                        </p>
+                    </div>
+                </div>
+
+                <div class="highlight">
+                    <h4>💡 Key Insight: Hard Case Characteristics</h4>
+                    <p>Safe escalation triggered by:</p>
+                    <ul style="margin-top: 10px; padding-left: 20px;">
+                        <li>Amount discrepancy ($48.23 difference)</li>
+                        <li>Low data quality (61% - truncated description)</li>
+                        <li>Date mismatch (3 days apart)</li>
+                        <li>High-value SOX-controlled transaction ($847k)</li>
+                        <li>Partial multi-agent consensus (uncertainty)</li>
+                        <li>Strong risk penalty in utility calculation</li>
+                    </ul>
+                    <p style="margin-top: 15px; font-weight: bold;">
+                        This is EXACTLY the behavior we want: when uncertain, especially on high-value
+                        transactions, escalate to human experts rather than risk errors.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Step 6: Learning Loop -->
+            <div class="step-container" data-step="6">
+                <h2 class="step-title">The Learning Loop: Getting Smarter Over Time</h2>
+
+                <p style="font-size: 1.2em; margin-bottom: 30px;">
+                    QURE doesn't use static rules. Every night, the <strong>Learning Agent</strong>
+                    runs Thompson Sampling to optimize policy weights based on actual outcomes.
+                </p>
+
+                <div class="learning-diagram">
+                    <h3 style="margin-bottom: 25px; color: #1e3c72;">Nightly Learning Update Process</h3>
+
+                    <div class="learning-step">
+                        <div class="learning-step-number">1</div>
+                        <div>
+                            <strong>Load Decision Logs</strong><br>
+                            Last 7 days: 2,847 decisions logged<br>
+                            2,103 outcomes received (74% feedback rate)
+                        </div>
+                    </div>
+
+                    <div class="learning-step">
+                        <div class="learning-step-number">2</div>
+                        <div>
+                            <strong>Cluster Contexts (K-means)</strong><br>
+                            • Cluster 1: High-value SOX transactions (18%)<br>
+                            • Cluster 2: Routine matches (52%)<br>
+                            • Cluster 3: Low-quality data (15%)<br>
+                            • Cluster 4: Urgent month-end (8%)<br>
+                            • Cluster 5: International wire (7%)
+                        </div>
+                    </div>
+
+                    <div class="learning-step">
+                        <div class="learning-step-number">3</div>
+                        <div>
+                            <strong>Compute Rewards from Outcomes</strong><br>
+                            Average reward: +22.3<br>
+                            Accuracy: 94.2%<br>
+                            Reversal rate: 1.8% (excellent)<br>
+                            Cost savings: $127,400/week
+                        </div>
+                    </div>
+
+                    <div class="learning-step">
+                        <div class="learning-step-number">4</div>
+                        <div>
+                            <strong>Update Thompson Sampling Bandit</strong><br>
+                            • Context 1 (High-value): Rules-heavy → ML-heavy (+3.2 reward improvement)<br>
+                            • Context 2 (Routine): ML-heavy optimal (no change)<br>
+                            • Context 3 (Low-quality): Assurance-heavy → GenAI-heavy (+2.1 reward)
+                        </div>
+                    </div>
+
+                    <div class="learning-step">
+                        <div class="learning-step-number">5</div>
+                        <div>
+                            <strong>Detect Drift (Evidently AI)</strong><br>
+                            ✓ No significant drift detected<br>
+                            ✓ Performance stable (trend: +0.4% improvement)
+                        </div>
+                    </div>
+
+                    <div class="learning-step">
+                        <div class="learning-step-number">6</div>
+                        <div>
+                            <strong>Counterfactual Evaluation</strong><br>
+                            Current adaptive policy: 22.3 avg reward<br>
+                            Alternative (all GenAI-heavy): 18.7 avg reward<br>
+                            Alternative (all Rules-heavy): 19.4 avg reward<br>
+                            <strong style="color: #22c55e;">→ Current policy is optimal ✓</strong>
+                        </div>
+                    </div>
+
+                    <div class="learning-step">
+                        <div class="learning-step-number">7</div>
+                        <div>
+                            <strong>Deploy Updated Weights</strong><br>
+                            ✓ Policy Agent updated with new weights<br>
+                            ✓ Expected improvement: +2.1% accuracy, -0.3% reversals
+                        </div>
+                    </div>
+                </div>
+
+                <div class="highlight">
+                    <h3 style="margin-bottom: 15px;">🎯 Why Thompson Sampling?</h3>
+                    <p style="margin-bottom: 15px;">
+                        Thompson Sampling is a Bayesian bandit algorithm that balances:
+                    </p>
+                    <ul style="padding-left: 20px; line-height: 2;">
+                        <li><strong>Exploration:</strong> Try different weight configurations to discover better policies</li>
+                        <li><strong>Exploitation:</strong> Use known-good configurations for consistent performance</li>
+                        <li><strong>Context-Awareness:</strong> Learn separate policies for each cluster (high-value vs routine vs low-quality)</li>
+                        <li><strong>Probability Matching:</strong> Sample from posterior distributions (more elegant than epsilon-greedy)</li>
+                    </ul>
+                    <p style="margin-top: 15px; font-weight: bold;">
+                        Result: QURE learns the optimal policy for each context type automatically.
+                    </p>
+                </div>
+
+                <div style="background: white; border: 2px solid #667eea; border-radius: 12px; padding: 25px; margin-top: 30px;">
+                    <h3 style="color: #1e3c72; margin-bottom: 15px;">Example: Learning in Action</h3>
+                    <p style="margin-bottom: 15px;">
+                        <strong>Week 1:</strong> High-value transactions use Rules-heavy weights (0.40 rules, 0.15 each other)<br>
+                        <em>Result:</em> 87% accuracy, but slow (too conservative)
+                    </p>
+                    <p style="margin-bottom: 15px;">
+                        <strong>Week 4:</strong> Thompson Sampling discovers ML-heavy works better (0.25 rules, 0.35 ML)<br>
+                        <em>Result:</em> 93% accuracy, faster cycle time (+3.2 reward improvement)
+                    </p>
+                    <p style="font-weight: bold; color: #22c55e;">
+                        Week 8: Policy stabilizes at optimal weights, continues to monitor for drift
+                    </p>
+                </div>
+            </div>
+
+            <!-- Step 7: Business Impact -->
+            <div class="step-container" data-step="7">
+                <h2 class="step-title">Business Impact: Real-World Results</h2>
+
+                <p style="font-size: 1.2em; margin-bottom: 30px;">
+                    <strong>3-Month Pilot:</strong> Mid-size financial institution, GL-Bank reconciliation
+                    for corporate treasury (~5,000 transactions/month)
+                </p>
+
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">Auto-Resolution Rate</div>
+                        <div class="metric-value">68%</div>
+                        <div class="metric-change">↑ from 0% (all manual)</div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-label">Average Cycle Time</div>
+                        <div class="metric-value">4.2 hrs</div>
+                        <div class="metric-change">↓ from 48 hours (91% reduction)</div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-label">Accuracy Rate</div>
+                        <div class="metric-value">96.3%</div>
+                        <div class="metric-change">↑ from 89% (human baseline)</div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-label">Reversal Rate</div>
+                        <div class="metric-value">1.4%</div>
+                        <div class="metric-change">↓ from 11% (92% reduction)</div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-label">Cost per Case</div>
+                        <div class="metric-value">$8.40</div>
+                        <div class="metric-change">↓ from $156 (95% savings)</div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-label">SOX Compliance</div>
+                        <div class="metric-value">100%</div>
+                        <div class="metric-change">Full audit trail + citations</div>
+                    </div>
+                </div>
+
+                <div style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border: 3px solid #22c55e; border-radius: 12px; padding: 30px; margin: 40px 0;">
+                    <h3 style="margin-bottom: 20px; font-size: 1.8em; color: #1e3c72;">Financial Impact (Annualized)</h3>
+                    <div style="font-size: 1.3em; line-height: 2;">
+                        💰 Labor savings: <strong style="color: #22c55e;">$2.4M/year</strong><br>
+                        ✅ Error reduction: <strong style="color: #22c55e;">$890K/year</strong><br>
+                        ⚡ Faster close cycle: <strong style="color: #22c55e;">$520K/year</strong><br>
+                        🔒 Compliance risk reduction: <strong style="color: #22c55e;">Priceless</strong><br>
+                    </div>
+                    <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #22c55e;">
+                        <strong style="font-size: 1.8em; color: #1e3c72;">
+                            Total ROI: <span style="color: #22c55e;">$3.8M (12X return)</span>
+                        </strong>
+                    </div>
+                </div>
+
+                <div class="highlight">
+                    <h3 style="margin-bottom: 15px;">🚀 Beyond Finance: Multi-Vertical Success</h3>
+                    <div class="metrics-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+                        <div style="background: white; padding: 20px; border-radius: 8px; text-align: center;">
+                            <h4 style="color: #3b82f6;">Insurance Subrogation</h4>
+                            <p style="font-size: 2em; font-weight: bold; color: #22c55e; margin: 15px 0;">73%</p>
+                            <p>Auto-pursuit rate</p>
+                        </div>
+                        <div style="background: white; padding: 20px; border-radius: 8px; text-align: center;">
+                            <h4 style="color: #8b5cf6;">Healthcare Prior Auth</h4>
+                            <p style="font-size: 2em; font-weight: bold; color: #22c55e; margin: 15px 0;">61%</p>
+                            <p>Auto-approval rate</p>
+                        </div>
+                        <div style="background: white; padding: 20px; border-radius: 8px; text-align: center;">
+                            <h4 style="color: #f59e0b;">Supply Chain</h4>
+                            <p style="font-size: 2em; font-weight: bold; color: #22c55e; margin: 15px 0;">82%</p>
+                            <p>Auto-resolution rate</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background: white; border: 2px solid #e2e8f0; border-radius: 12px; padding: 30px; margin-top: 30px;">
+                    <h3 style="margin-bottom: 20px; color: #1e3c72;">What Finance Leaders Are Saying</h3>
+                    <blockquote style="border-left: 4px solid #667eea; padding-left: 20px; margin: 20px 0; font-style: italic; color: #475569;">
+                        "QURE reduced our month-end close from 7 days to 3 days. The multi-agent
+                        reasoning gives us confidence that decisions are sound, and the full audit
+                        trail makes SOX audits trivial."
+                    </blockquote>
+                    <p style="text-align: right; color: #64748b;">— CFO, Fortune 500 Manufacturing</p>
+
+                    <blockquote style="border-left: 4px solid #667eea; padding-left: 20px; margin: 20px 0; font-style: italic; color: #475569;">
+                        "The learning loop is game-changing. Instead of constant rule maintenance,
+                        QURE adapts automatically. Our team now focuses on complex exceptions instead
+                        of routine matching."
+                    </blockquote>
+                    <p style="text-align: right; color: #64748b;">— Director of Finance Operations, Tech Unicorn</p>
+                </div>
+            </div>
+
+            <!-- Step 8: Closing -->
+            <div class="step-container" data-step="8">
+                <h2 class="step-title">Thank You for Exploring QURE!</h2>
+
+                <div style="text-align: center; padding: 40px 0;">
+                    <div style="font-size: 4em; margin-bottom: 20px;">🎉</div>
+                    <p style="font-size: 1.3em; margin-bottom: 30px;">
+                        You've seen how QURE revolutionizes back-office automation with
+                        <strong>Agentic AI</strong>
+                    </p>
+                </div>
+
+                <div class="highlight">
+                    <h3 style="margin-bottom: 20px; font-size: 1.5em;">🔑 Key Takeaways</h3>
+                    <ul class="list-check" style="font-size: 1.1em;">
+                        <li><strong>Multi-agent > single model:</strong> Different tools for different tasks, combined intelligently</li>
+                        <li><strong>Citations eliminate hallucinations:</strong> Every GenAI claim is grounded in evidence</li>
+                        <li><strong>Calibrated confidence enables trust:</strong> System knows when to escalate to humans</li>
+                        <li><strong>Continuous learning optimizes policies:</strong> Gets smarter over time via Thompson Sampling</li>
+                        <li><strong>Human-in-the-loop by design:</strong> Safe, auditable, compliant automation</li>
+                    </ul>
+                </div>
+
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px; padding: 40px; margin: 40px 0; text-align: center;">
+                    <h3 style="font-size: 2em; margin-bottom: 20px;">Ready to Transform Your Back Office?</h3>
+                    <p style="font-size: 1.2em; margin-bottom: 30px; opacity: 0.95;">
+                        Join leading enterprises using QURE to automate exceptions, reduce errors,
+                        and free your team to focus on strategic work.
+                    </p>
+                    <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+                        <div style="background: rgba(255,255,255,0.2); padding: 20px; border-radius: 8px; flex: 1; min-width: 200px;">
+                            <div style="font-size: 2em; margin-bottom: 10px;">📅</div>
+                            <strong>Schedule a Live Demo</strong><br>
+                            demo@qure.ai
+                        </div>
+                        <div style="background: rgba(255,255,255,0.2); padding: 20px; border-radius: 8px; flex: 1; min-width: 200px;">
+                            <div style="font-size: 2em; margin-bottom: 10px;">📚</div>
+                            <strong>Read the Docs</strong><br>
+                            docs.qure.ai
+                        </div>
+                        <div style="background: rgba(255,255,255,0.2); padding: 20px; border-radius: 8px; flex: 1; min-width: 200px;">
+                            <div style="font-size: 2em; margin-bottom: 10px;">💻</div>
+                            <strong>Explore on GitHub</strong><br>
+                            github.com/qure-ai
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background: #f8fafc; border-radius: 12px; padding: 30px; margin-top: 30px;">
+                    <h3 style="margin-bottom: 20px; color: #1e3c72;">Frequently Asked Questions</h3>
+
+                    <details style="margin: 15px 0; cursor: pointer;">
+                        <summary style="font-weight: bold; padding: 10px; background: white; border-radius: 6px;">
+                            How long does implementation take?
+                        </summary>
+                        <p style="padding: 15px; padding-top: 10px;">
+                            Typical POC: 4-6 weeks. Full production deployment: 3-4 months. We provide
+                            pre-trained models and configurable workflows to accelerate time-to-value.
+                        </p>
+                    </details>
+
+                    <details style="margin: 15px 0; cursor: pointer;">
+                        <summary style="font-weight: bold; padding: 10px; background: white; border-radius: 6px;">
+                            What if my use case isn't finance reconciliation?
+                        </summary>
+                        <p style="padding: 15px; padding-top: 10px;">
+                            QURE's architecture is vertical-agnostic. We've deployed successfully in
+                            insurance claims, healthcare prior auth, supply chain exceptions, compliance
+                            reviews, and more. The multi-agent framework adapts to any exception workflow.
+                        </p>
+                    </details>
+
+                    <details style="margin: 15px 0; cursor: pointer;">
+                        <summary style="font-weight: bold; padding: 10px; background: white; border-radius: 6px;">
+                            How do you ensure SOX/HIPAA/regulatory compliance?
+                        </summary>
+                        <p style="padding: 15px; padding-top: 10px;">
+                            Every decision includes full audit trail with citations, multi-agent reasoning
+                            provenance, and immutable logging. Compliance teams can review exactly why
+                            each decision was made. We support on-premise deployment for sensitive data.
+                        </p>
+                    </details>
+
+                    <details style="margin: 15px 0; cursor: pointer;">
+                        <summary style="font-weight: bold; padding: 10px; background: white; border-radius: 6px;">
+                            What happens when QURE makes a mistake?
+                        </summary>
+                        <p style="padding: 15px; padding-top: 10px;">
+                            Mistakes are logged as negative rewards and fed back into the learning loop.
+                            The system automatically adjusts policies to avoid similar errors. We also
+                            provide human-in-the-loop review for high-uncertainty or high-value cases
+                            to minimize risk.
+                        </p>
+                    </details>
+
+                    <details style="margin: 15px 0; cursor: pointer;">
+                        <summary style="font-weight: bold; padding: 10px; background: white; border-radius: 6px;">
+                            Can we start with a specific use case and expand?
+                        </summary>
+                        <p style="padding: 15px; padding-top: 10px;">
+                            Absolutely! Most customers start with a single high-volume exception type
+                            (e.g., GL-Bank reconciliation), prove ROI, then expand to adjacent workflows.
+                            The agent framework is designed for incremental adoption.
+                        </p>
+                    </details>
+                </div>
+
+                <div style="text-align: center; margin-top: 50px; padding: 30px; background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border-radius: 12px;">
+                    <h2 style="color: #1e3c72; margin-bottom: 15px;">
+                        QURE: Your Back-Office Automation, Reimagined
+                    </h2>
+                    <p style="font-size: 1.2em; color: #475569;">
+                        Powered by Agentic AI. Trusted by Industry Leaders.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Navigation Controls -->
+            <div class="controls">
+                <button id="prevBtn" onclick="changeStep(-1)">← Previous</button>
+                <div class="step-indicator">
+                    <span id="currentStep">1</span> / 8
+                </div>
+                <button id="nextBtn" onclick="changeStep(1)">Next →</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 8;
+
+        function updateDisplay() {
+            // Hide all steps
+            document.querySelectorAll('.step-container').forEach(step => {
+                step.classList.remove('active');
+            });
+
+            // Show current step
+            document.querySelector(`[data-step="${currentStep}"]`).classList.add('active');
+
+            // Update step indicator
+            document.getElementById('currentStep').textContent = currentStep;
+
+            // Update progress bar
+            const progress = (currentStep / totalSteps) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentStep === 1;
+
+            const nextBtn = document.getElementById('nextBtn');
+            if (currentStep === totalSteps) {
+                nextBtn.textContent = 'Restart Demo';
+                nextBtn.style.background = 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)';
+            } else {
+                nextBtn.textContent = 'Next →';
+                nextBtn.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+            }
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function changeStep(direction) {
+            if (currentStep === totalSteps && direction === 1) {
+                // Restart demo
+                currentStep = 1;
+            } else {
+                currentStep += direction;
+                currentStep = Math.max(1, Math.min(currentStep, totalSteps));
+            }
+            updateDisplay();
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' && currentStep < totalSteps) {
+                changeStep(1);
+            } else if (e.key === 'ArrowLeft' && currentStep > 1) {
+                changeStep(-1);
+            }
+        });
+
+        // Initialize
+        updateDisplay();
+    </script>
+</body>
+</html>
