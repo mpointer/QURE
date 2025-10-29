@@ -7,34 +7,23 @@
 - `ui/streamlit_app.py` - Main application
 - `data/synthetic/` - All demo data files (5 verticals)
 
-## Step 1: Create GitHub Repository
+## Step 1: GitHub Repository ✅
 
-1. Go to https://github.com/new
-2. Repository name: `QURE`
-3. Description: "QURE - Quality Unified Resolution Engine"
-4. Visibility: **Public** (required for free Streamlit Cloud)
-5. **DON'T** initialize with README/gitignore/license
-6. Click "Create repository"
+Repository already exists and is configured:
+- **Repository**: https://github.com/mpointer/QURE
+- **Branch**: `main`
+- **Visibility**: Public
+- **Latest Commit**: Phase 5 Complete (Planner QRU + UI Enhancements)
 
-## Step 2: Push to GitHub
+All code has been pushed to GitHub and is ready for deployment.
 
-After creating the repo, run these commands:
-
-```bash
-cd C:\Users\micha\Documents\GitHub\QURE
-git remote add origin https://github.com/YOUR_USERNAME/QURE.git
-git push -u origin main
-```
-
-Replace `YOUR_USERNAME` with your actual GitHub username.
-
-## Step 3: Deploy to Streamlit Cloud
+## Step 2: Deploy to Streamlit Cloud
 
 1. Go to https://share.streamlit.io/
-2. Sign in with GitHub
+2. Sign in with GitHub (use your mpointer account)
 3. Click "New app"
 4. Configure:
-   - **Repository**: `YOUR_USERNAME/QURE`
+   - **Repository**: `mpointer/QURE`
    - **Branch**: `main`
    - **Main file path**: `ui/streamlit_app.py`
 5. Click "Deploy!"
@@ -42,7 +31,10 @@ Replace `YOUR_USERNAME` with your actual GitHub username.
 ## Your Live URL
 
 After deployment (2-3 minutes), your app will be at:
-`https://YOUR_USERNAME-qure.streamlit.app`
+`https://mpointer-qure.streamlit.app`
+
+Or Streamlit may assign:
+`https://qure.streamlit.app` (if available)
 
 ## What's Included
 
@@ -53,15 +45,27 @@ After deployment (2-3 minutes), your app will be at:
 4. **Retail** - Inventory Reconciliation (20 cases)
 5. **Manufacturing** - PO/Receipt Matching (20 cases)
 
-### Features:
-- ✅ ROI Calculator showing cost/time savings
-- ✅ Animated business impact metrics
-- ✅ Live processing with QRU workflow visualization
-- ✅ Decision reasoning chains
-- ✅ Manual vs QURE comparison charts
-- ✅ Multi-vertical navigation
-- ✅ Audit trail visualization
-- ✅ Agent performance dashboard
+### Executive Pages:
+- ✅ **Executive Summary** - High-level business metrics and ROI
+- ✅ **Before & After** - Manual vs QURE comparison
+- ✅ **Business Case** - Financial justification and TCO analysis
+- ✅ **What-If Scenarios** - Interactive scenario planning
+
+### Technical Pages:
+- ✅ **Dashboard** - Real-time metrics across all verticals
+- ✅ **Use Cases** - Vertical-specific demo scenarios
+- ✅ **Live Processing** - Animated QRU workflow with Planner intelligence
+- ✅ **Case List** - Searchable case inventory
+- ✅ **Case Details** - Deep-dive into individual decisions
+- ✅ **Audit Trail** - Complete decision history
+- ✅ **QRU Performance** - Agent effectiveness metrics
+
+### Phase 5 Features (NEW):
+- 🧠 **Planner QRU** - Intelligent meta-orchestrator with business domain expertise
+- 📊 **16 Business Problem Classifications** across 5 verticals
+- 💰 **87.7% Cost Savings** on simple cases via intelligent QRU selection
+- ⏭️ **Visual Skip Indicators** - Clear display of skipped vs executed QRUs
+- 🎯 **Dynamic Workflow Generation** - Execution plans tailored to case complexity
 
 ## Troubleshooting
 
