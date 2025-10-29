@@ -32,6 +32,14 @@ except ImportError as e:
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+# Import business demo enhancements
+from business_demo_enhancements import (
+    show_executive_summary,
+    show_before_after_comparison,
+    show_business_case_generator,
+    show_what_if_scenarios
+)
+
 
 def get_vertical_id_fields(vertical):
     """Get vertical-specific ID field names"""
@@ -323,10 +331,84 @@ def main():
 
     # Navigation
     st.sidebar.title("Navigation")
-    page = st.sidebar.radio(
-        "Select Page",
-        ["Dashboard", "Use Cases", "Live Processing", "Case List", "Case Details", "Audit Trail", "Admin Panel", "QRU Performance", "About"]
+
+    # Initialize page tracking in session state
+    if 'current_page_group' not in st.session_state:
+        st.session_state.current_page_group = 'business'
+    if 'current_page' not in st.session_state:
+        st.session_state.current_page = 'Executive Summary'
+    if 'last_business_selection' not in st.session_state:
+        st.session_state.last_business_selection = 'Executive Summary'
+    if 'last_technical_selection' not in st.session_state:
+        st.session_state.last_technical_selection = 'Dashboard'
+    if 'last_admin_selection' not in st.session_state:
+        st.session_state.last_admin_selection = 'Admin Panel'
+
+    # Define page groups
+    all_business = ["Executive Summary", "Before & After", "Business Case", "What-If Scenarios"]
+    all_technical = ["Dashboard", "Use Cases", "Live Processing", "Case List", "Case Details", "Audit Trail", "QRU Performance"]
+    all_admin = ["Admin Panel", "About"]
+
+    # Calculate index for each radio group
+    business_index = 0
+    if st.session_state.current_page_group == 'business' and st.session_state.current_page in all_business:
+        business_index = all_business.index(st.session_state.current_page)
+
+    technical_index = 0
+    if st.session_state.current_page_group == 'technical' and st.session_state.current_page in all_technical:
+        technical_index = all_technical.index(st.session_state.current_page)
+
+    admin_index = 0
+    if st.session_state.current_page_group == 'admin' and st.session_state.current_page in all_admin:
+        admin_index = all_admin.index(st.session_state.current_page)
+
+    # Group pages by purpose
+    st.sidebar.markdown("### 🎯 Business Demo")
+    business_pages = st.sidebar.radio(
+        "Executive Pages",
+        all_business,
+        index=business_index,
+        key="business_radio",
+        label_visibility="collapsed"
     )
+
+    st.sidebar.markdown("### 🔍 Technical Demo")
+    technical_pages = st.sidebar.radio(
+        "Technical Pages",
+        all_technical,
+        index=technical_index,
+        key="technical_radio",
+        label_visibility="collapsed"
+    )
+
+    st.sidebar.markdown("### ⚙️ Configuration")
+    admin_pages = st.sidebar.radio(
+        "Admin Pages",
+        all_admin,
+        index=admin_index,
+        key="admin_radio",
+        label_visibility="collapsed"
+    )
+
+    # Determine which page is selected based on what changed
+    if business_pages != st.session_state.last_business_selection:
+        page = business_pages
+        st.session_state.current_page_group = 'business'
+        st.session_state.current_page = page
+        st.session_state.last_business_selection = business_pages
+    elif technical_pages != st.session_state.last_technical_selection:
+        page = technical_pages
+        st.session_state.current_page_group = 'technical'
+        st.session_state.current_page = page
+        st.session_state.last_technical_selection = technical_pages
+    elif admin_pages != st.session_state.last_admin_selection:
+        page = admin_pages
+        st.session_state.current_page_group = 'admin'
+        st.session_state.current_page = page
+        st.session_state.last_admin_selection = admin_pages
+    else:
+        # Use current page from session state
+        page = st.session_state.current_page
 
     # Load data based on selected vertical
     try:
@@ -341,7 +423,16 @@ def main():
     gl_transactions = data1  # Finance: GL, Healthcare: Prior Auth Requests
     bank_transactions = data2  # Finance: Bank, Healthcare: Clinical Documentation
 
-    if page == "Dashboard":
+    # Route to appropriate page
+    if page == "Executive Summary":
+        show_executive_summary(gl_transactions, bank_transactions, expected_matches)
+    elif page == "Before & After":
+        show_before_after_comparison(gl_transactions, bank_transactions, expected_matches)
+    elif page == "Business Case":
+        show_business_case_generator(gl_transactions, bank_transactions, expected_matches)
+    elif page == "What-If Scenarios":
+        show_what_if_scenarios(gl_transactions, bank_transactions, expected_matches)
+    elif page == "Dashboard":
         show_dashboard(gl_transactions, bank_transactions, expected_matches)
     elif page == "Use Cases":
         show_use_cases()
@@ -1083,7 +1174,7 @@ def show_case_details(gl_transactions, bank_transactions, expected_matches):
 
         # Display as table
         df = pd.DataFrame(comparison_data)
-        st.dataframe(df, use_container_width=True, hide_index=True)
+        st.dataframe(df, width='stretch', hide_index=True)
 
         st.markdown("### Policy Decision")
         if match['expected_decision'] == "auto_approve":
@@ -1282,23 +1373,131 @@ def show_live_processing(gl_transactions, bank_transactions, expected_matches):
         selected_match = expected_matches[selected_case_idx]
 
     with col2:
-        process_button = st.button("▶️ Process Case", type="primary", use_container_width=True)
-        batch_button = st.button("⚡ Batch Process All", use_container_width=True)
+        process_button = st.button("▶️ Process Case", type="primary", width='stretch')
+        batch_button = st.button("⚡ Batch Process All", width='stretch')
+
+    # Planner QRU Analysis (shown before processing)
+    if process_button or 'show_planner' in st.session_state:
+        st.session_state.show_planner = True
+
+        st.markdown("---")
+        st.subheader("🧠 Planner QRU - Intelligent Orchestration")
+
+        # Invoke Planner QRU for the selected case
+        from agents.planner import PlannerQRU
+        planner = PlannerQRU()
+
+        # Build case data from selected match
+        case_data = {
+            "case_id": selected_match["case_id"],
+            "gl_amount": selected_match.get("gl_amount", 0),
+            "bank_amount": selected_match.get("bank_amount", 0),
+            "gl_date": selected_match.get("gl_date", ""),
+            "bank_date": selected_match.get("bank_date", ""),
+            "description": selected_match.get("description", ""),
+            "account": selected_match.get("account", ""),
+            "currency": selected_match.get("currency", "USD")
+        }
+
+        # Get execution plan
+        execution_plan = planner.analyze_case(case_data, vertical)
+
+        # Store in session state for animation
+        st.session_state.execution_plan = execution_plan
+
+        # Show business context
+        st.info(f"**Business Context**: {execution_plan.business_context}")
+
+        # Show classification in columns
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            complexity_color = {
+                "Simple": "🟢",
+                "Moderate": "🟡",
+                "Complex": "🟠",
+                "Highly Complex": "🔴"
+            }
+            st.metric(
+                "Complexity",
+                execution_plan.classification.complexity.value,
+                help=f"{complexity_color.get(execution_plan.classification.complexity.value, '')} Complexity Level"
+            )
+        with col2:
+            st.metric(
+                "Data Quality",
+                execution_plan.classification.data_quality.value
+            )
+        with col3:
+            st.metric(
+                "Estimated Cost",
+                f"${execution_plan.estimated_total_cost:.4f}"
+            )
+        with col4:
+            st.metric(
+                "Estimated Time",
+                f"{execution_plan.estimated_total_time_seconds:.1f}s"
+            )
+
+        # Show business problem classification
+        st.markdown(f"**Business Problem**: {execution_plan.classification.business_problem.value}")
+
+        # Show selected vs skipped QRUs
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.markdown("### ✅ Selected QRUs")
+            for qru in execution_plan.selected_qrus:
+                with st.expander(f"**{qru.priority}. {qru.qru_name}** {'🔒' if qru.required else '⚠️'}", expanded=False):
+                    st.markdown(f"**Reason**: {qru.reason}")
+                    st.markdown(f"**Cost**: ${qru.estimated_cost:.4f}")
+                    st.markdown(f"**Time**: {qru.estimated_time_seconds:.1f}s")
+                    st.markdown(f"**Required**: {'Yes' if qru.required else 'No'}")
+
+        with col2:
+            st.markdown("### ⏭️ Skipped QRUs")
+            if execution_plan.skipped_qrus:
+                for qru_name in execution_plan.skipped_qrus:
+                    st.markdown(f"- {qru_name}")
+
+                # Calculate savings
+                full_pipeline_cost = sum(planner.QRU_COSTS.values())
+                savings_pct = ((full_pipeline_cost - execution_plan.estimated_total_cost) / full_pipeline_cost) * 100
+                st.success(f"**Cost Savings**: {savings_pct:.1f}% vs. full pipeline")
+            else:
+                st.markdown("*All QRUs will be invoked (complex case)*")
+
+        # Show planner reasoning
+        with st.expander("🔍 Planner Reasoning", expanded=True):
+            st.markdown(execution_plan.reasoning)
+
+        st.markdown("---")
 
     # QRU workflow visualization
     st.subheader("QRU Execution Flow")
 
+    # Build agent list with Planner-aware status
     agents = [
-        {"name": "Retriever QRU", "icon": "📥", "status": "pending"},
-        {"name": "Data QRU", "icon": "🔍", "status": "pending"},
-        {"name": "Rules QRU", "icon": "📋", "status": "pending"},
-        {"name": "Algorithm QRU", "icon": "🧮", "status": "pending"},
-        {"name": "ML Model QRU", "icon": "🤖", "status": "pending"},
-        {"name": "GenAI QRU", "icon": "🧠", "status": "pending"},
-        {"name": "Assurance QRU", "icon": "✅", "status": "pending"},
-        {"name": "Policy QRU", "icon": "⚖️", "status": "pending"},
-        {"name": "Action QRU", "icon": "📤", "status": "pending"},
+        {"name": "Retriever QRU", "icon": "📥", "status": "pending", "short_name": "Retriever"},
+        {"name": "Data QRU", "icon": "🔍", "status": "pending", "short_name": "Data"},
+        {"name": "Rules QRU", "icon": "📋", "status": "pending", "short_name": "Rules"},
+        {"name": "Algorithm QRU", "icon": "🧮", "status": "pending", "short_name": "Algorithm"},
+        {"name": "ML Model QRU", "icon": "🤖", "status": "pending", "short_name": "ML Model"},
+        {"name": "GenAI QRU", "icon": "🧠", "status": "pending", "short_name": "GenAI"},
+        {"name": "Assurance QRU", "icon": "✅", "status": "pending", "short_name": "Assurance"},
+        {"name": "Policy QRU", "icon": "⚖️", "status": "pending", "short_name": "Policy"},
+        {"name": "Action QRU", "icon": "📤", "status": "pending", "short_name": "Action"},
     ]
+
+    # Mark agents as skipped if Planner is active
+    if 'show_planner' in st.session_state and st.session_state.show_planner:
+        # Get execution plan from session
+        if 'execution_plan' in st.session_state:
+            execution_plan = st.session_state.execution_plan
+            selected_qru_names = [qru.qru_name for qru in execution_plan.selected_qrus]
+
+            for agent in agents:
+                if agent["short_name"] not in selected_qru_names:
+                    agent["status"] = "skipped"
 
     # Batch processing logic
     if batch_button:
@@ -1348,7 +1547,7 @@ def show_live_processing(gl_transactions, bank_transactions, expected_matches):
         df['decision'] = df['decision'].str.replace('_', ' ').str.title()
         df['score'] = df['score'].apply(lambda x: f"{x:.0%}")
 
-        st.dataframe(df, use_container_width=True)
+        st.dataframe(df, width='stretch')
 
         # Download button
         csv = df.to_csv(index=False)
@@ -1378,13 +1577,26 @@ def show_live_processing(gl_transactions, bank_transactions, expected_matches):
         for i, agent in enumerate(agents):
             with agent_cols[i]:
                 agent_cards[agent["name"]] = st.empty()
-                agent_cards[agent["name"]].markdown(f"""
-                <div style='text-align: center; padding: 10px; border: 2px solid #ddd; border-radius: 10px; background-color: #f9f9f9;'>
-                    <div style='font-size: 32px;'>{agent['icon']}</div>
-                    <div style='font-size: 12px; font-weight: bold;'>{agent['name']}</div>
-                    <div style='font-size: 10px; color: #666;'>⏸️ Pending</div>
-                </div>
-                """, unsafe_allow_html=True)
+
+                # Render based on Planner status
+                if agent["status"] == "skipped":
+                    # Grayed out, crossed out appearance
+                    agent_cards[agent["name"]].markdown(f"""
+                    <div style='text-align: center; padding: 10px; border: 2px dashed #ccc; border-radius: 10px; background-color: #f5f5f5; opacity: 0.5;'>
+                        <div style='font-size: 32px; filter: grayscale(100%);'>{agent['icon']}</div>
+                        <div style='font-size: 12px; font-weight: bold; text-decoration: line-through; color: #999;'>{agent['name']}</div>
+                        <div style='font-size: 10px; color: #999;'>⏭️ Skipped by Planner</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                else:
+                    # Normal pending state
+                    agent_cards[agent["name"]].markdown(f"""
+                    <div style='text-align: center; padding: 10px; border: 2px solid #ddd; border-radius: 10px; background-color: #f9f9f9;'>
+                        <div style='font-size: 32px;'>{agent['icon']}</div>
+                        <div style='font-size: 12px; font-weight: bold;'>{agent['name']}</div>
+                        <div style='font-size: 10px; color: #666;'>⏸️ Pending</div>
+                    </div>
+                    """, unsafe_allow_html=True)
 
         # Results container
         results_container = st.container()
@@ -1394,6 +1606,11 @@ def show_live_processing(gl_transactions, bank_transactions, expected_matches):
         agent_results = {}
 
         for i, agent in enumerate(agents):
+            # Skip if Planner marked this agent as skipped
+            if agent["status"] == "skipped":
+                progress_bar.progress((i + 1) / total_steps)
+                continue
+
             # Update status
             status_text.text(f"⚡ Executing {agent['name']} Agent...")
             progress_bar.progress((i) / total_steps)
@@ -1513,43 +1730,62 @@ def show_live_processing(gl_transactions, bank_transactions, expected_matches):
 
             with col2:
                 st.metric("Match Score", f"{selected_match['match_score']:.0%}")
-                st.metric("Assurance", f"{agent_results['Assurance QRU']['assurance']:.0%}")
+                if 'Assurance QRU' in agent_results:
+                    st.metric("Assurance", f"{agent_results['Assurance QRU']['assurance']:.0%}")
+                else:
+                    st.metric("Assurance", "⏭️ Skipped")
 
             with col3:
                 decision = selected_match['expected_decision'].replace('_', ' ').title()
                 st.metric("Decision", decision)
-                st.metric("ML Confidence", f"{agent_results['ML Model QRU']['confidence']:.0%}")
+                if 'ML Model QRU' in agent_results:
+                    st.metric("ML Confidence", f"{agent_results['ML Model QRU']['confidence']:.0%}")
+                else:
+                    st.metric("ML Confidence", "⏭️ Skipped")
 
             # Show QRU scores in a chart
             st.subheader("QRU Scores Breakdown")
 
             fig = go.Figure()
 
-            agent_names = ["Rules", "Algorithm", "ML Model", "GenAI", "Assurance"]
-            scores = [
-                agent_results["Rules QRU"]["score"],
-                agent_results["Algorithm QRU"]["score"],
-                agent_results["ML Model QRU"]["confidence"],
-                agent_results["GenAI QRU"]["confidence"],
-                agent_results["Assurance QRU"]["assurance"]
+            # Only include agents that were executed
+            agent_mapping = [
+                ("Rules", "Rules QRU", "score", '#FF6B6B'),
+                ("Algorithm", "Algorithm QRU", "score", '#4ECDC4'),
+                ("ML Model", "ML Model QRU", "confidence", '#45B7D1'),
+                ("GenAI", "GenAI QRU", "confidence", '#FFA07A'),
+                ("Assurance", "Assurance QRU", "assurance", '#98D8C8')
             ]
 
-            fig.add_trace(go.Bar(
-                x=agent_names,
-                y=scores,
-                marker_color=['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8'],
-                text=[f"{s:.0%}" for s in scores],
-                textposition='auto',
-            ))
+            agent_names = []
+            scores = []
+            colors = []
 
-            fig.update_layout(
-                title="Agent Confidence Scores",
-                yaxis_title="Score",
-                yaxis=dict(range=[0, 1]),
-                height=400
-            )
+            for display_name, qru_name, metric_key, color in agent_mapping:
+                if qru_name in agent_results:
+                    agent_names.append(display_name)
+                    scores.append(agent_results[qru_name][metric_key])
+                    colors.append(color)
 
-            st.plotly_chart(fig, use_container_width=True)
+            if agent_names:  # Only show chart if there are agents to display
+                fig.add_trace(go.Bar(
+                    x=agent_names,
+                    y=scores,
+                    marker_color=colors,
+                    text=[f"{s:.0%}" for s in scores],
+                    textposition='auto',
+                ))
+
+                fig.update_layout(
+                    title="Agent Confidence Scores",
+                    yaxis_title="Score",
+                    yaxis=dict(range=[0, 1]),
+                    height=400
+                )
+
+                st.plotly_chart(fig, use_container_width=True)
+            else:
+                st.info("No agent scores available to display.")
 
             # Show reasoning chain with expanders
             st.markdown("---")

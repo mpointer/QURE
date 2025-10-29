@@ -2,9 +2,11 @@
 Orchestration Agent
 
 Coordinates multi-agent workflow execution using DAG-based pipelines.
+Now integrates with Planner QRU for intelligent, dynamic QRU selection.
 """
 
 import logging
+from dataclasses import asdict
 from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional
@@ -19,6 +21,7 @@ from common.schemas import (
     RulesEvaluationRequest,
     ActionRequest,
 )
+from agents.planner import PlannerQRU, ExecutionPlan
 
 logger = logging.getLogger(__name__)
 
@@ -52,6 +55,7 @@ class Orchestrator:
     - Retry failed steps with exponential backoff
     - Monitor workflow progress
     - Support branching logic (if/else, switch)
+    - Integrate with Planner QRU for intelligent QRU selection
     """
 
     def __init__(self):
@@ -65,7 +69,13 @@ class Orchestrator:
         # Agent registry (will be populated)
         self.agents: Dict[str, Any] = {}
 
-        logger.info("✅ Orchestrator initialized")
+        # Planner QRU for intelligent orchestration
+        self.planner = PlannerQRU()
+
+        # Execution plans (cached by case_id)
+        self.execution_plans: Dict[str, ExecutionPlan] = {}
+
+        logger.info("✅ Orchestrator initialized with Planner QRU")
 
     def register_workflow(
         self,
@@ -144,6 +154,111 @@ class Orchestrator:
         logger.info(f"Started workflow {workflow_name} instance: {instance_id}")
 
         return instance_id
+
+    def start_intelligent_workflow(
+        self,
+        case_id: str,
+        case_data: Dict[str, Any],
+        vertical: str,
+    ) -> str:
+        """
+        Start workflow with Planner QRU intelligence
+
+        This method:
+        1. Invokes Planner QRU to analyze the case
+        2. Generates an optimized ExecutionPlan
+        3. Dynamically constructs workflow based on selected QRUs
+        4. Executes the workflow
+
+        Args:
+            case_id: Case ID
+            case_data: Case data for analysis
+            vertical: Business vertical (Finance, Healthcare, Insurance, etc.)
+
+        Returns:
+            Workflow instance ID
+        """
+        logger.info(f"🧠 Invoking Planner QRU for case {case_id} in {vertical} vertical")
+
+        # Step 1: Invoke Planner QRU
+        execution_plan = self.planner.analyze_case(case_data, vertical)
+
+        # Cache execution plan
+        self.execution_plans[case_id] = execution_plan
+
+        logger.info(f"📋 Planner selected {len(execution_plan.selected_qrus)} QRUs")
+        logger.info(f"💰 Estimated cost: ${execution_plan.estimated_total_cost:.4f}")
+        logger.info(f"⏱️  Estimated time: {execution_plan.estimated_total_time_seconds:.1f}s")
+
+        # Step 2: Build dynamic workflow definition from execution plan
+        workflow_def = self._build_workflow_from_plan(execution_plan)
+
+        # Register the dynamic workflow
+        workflow_name = f"dynamic_{vertical}_{case_id}"
+        self.register_workflow(workflow_name, workflow_def)
+
+        # Step 3: Start workflow execution
+        instance_id = self.start_workflow(
+            workflow_name=workflow_name,
+            case_id=case_id,
+            initial_data=case_data,
+        )
+
+        # Add execution plan to instance (convert dataclass to dict)
+        self.instances[instance_id]["execution_plan"] = asdict(execution_plan)
+
+        return instance_id
+
+    def _build_workflow_from_plan(self, plan: ExecutionPlan) -> Dict[str, Any]:
+        """
+        Build workflow definition from ExecutionPlan
+
+        Args:
+            plan: ExecutionPlan from Planner QRU
+
+        Returns:
+            Workflow definition dict
+        """
+        steps = {}
+        previous_step = None
+
+        for qru_selection in plan.selected_qrus:
+            qru_name = qru_selection.qru_name
+            step_name = qru_name.lower().replace(" ", "_")
+
+            # Map QRU names to agent names
+            agent_name_map = {
+                "Retriever": "retriever",
+                "Data": "data_agent",
+                "Rules": "rules_engine",
+                "Algorithm": "algorithm_agent",
+                "ML Model": "ml_model_agent",
+                "GenAI": "genai_reasoner",
+                "Assurance": "assurance_agent",
+                "Policy": "policy_agent",
+                "Action": "action_agent",
+                "Learning": "learning_agent",
+                "Orchestration": "orchestrator",
+            }
+
+            agent_name = agent_name_map.get(qru_name, qru_name.lower())
+
+            step_def = {
+                "agent": agent_name,
+                "action": "execute",
+                "inputs": {},
+                "depends_on": [previous_step] if previous_step else [],
+                "on_failure": "continue" if not qru_selection.required else "stop",
+            }
+
+            steps[step_name] = step_def
+            previous_step = step_name
+
+        return {
+            "name": f"Dynamic workflow from Planner",
+            "description": plan.reasoning,
+            "steps": steps,
+        }
 
     def execute_workflow(self, instance_id: str) -> Dict[str, Any]:
         """
@@ -523,6 +638,18 @@ class Orchestrator:
         logger.info(f"Resuming workflow: {instance_id}")
 
         return self.execute_workflow(instance_id)
+
+    def get_execution_plan(self, case_id: str) -> Optional[ExecutionPlan]:
+        """
+        Get cached execution plan for a case
+
+        Args:
+            case_id: Case ID
+
+        Returns:
+            ExecutionPlan or None if not found
+        """
+        return self.execution_plans.get(case_id)
 
 
 # Singleton instance
